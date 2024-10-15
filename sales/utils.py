@@ -116,8 +116,7 @@ def generate_order_excel(order):
 
 # Функция для регистрации шрифта
 def register_fonts():
-    # Путь к файлу шрифта (из папки static/fonts или просто fonts)
-    font_path = os.path.join(os.path.dirname(__file__), 'static', 'fonts', 'Roboto-Regular.ttf')  # Для веб-проектов
+    font_path = os.path.join(os.path.dirname(__file__), 'static', 'fonts', 'Roboto-Regular.ttf')
     # Для автономного проекта используйте:
     # font_path = os.path.join(os.path.dirname(__file__), 'fonts', 'Roboto-Regular.ttf')
 

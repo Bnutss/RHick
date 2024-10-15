@@ -1,12 +1,6 @@
 from django.urls import path
-from .views import (
-    OrderListCreateAPIView,
-    OrderDetailAPIView,
-    OrderProductsAPIView,
-    OrderConfirmAPIView,
-    OrderRejectAPIView,
-    export_order_to_telegram
-)
+from .views import (OrderListCreateAPIView, OrderDetailAPIView, OrderProductsAPIView, OrderConfirmAPIView,
+                    OrderRejectAPIView, export_order_to_telegram)
 
 app_name = 'sales'
 
