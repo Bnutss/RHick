@@ -1,27 +1,41 @@
 from openpyxl.styles import Font, Alignment
-import os
-import requests
 from openpyxl.drawing.image import Image
 from openpyxl import Workbook
 from PIL import Image as PILImage
+import os
+import requests
+import mimetypes
+from reportlab.lib.pagesizes import A4
+from reportlab.lib import colors
+from reportlab.lib.units import cm
+from reportlab.pdfgen import canvas
+from reportlab.platypus import Table, TableStyle, Image as ReportLabImage
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfbase import pdfmetrics
+
+# Регистрация MIME-типа для .webp
+mimetypes.add_type('image/webp', '.webp')
 
 TELEGRAM_BOT_TOKEN = '7775474735:AAFHyJw-YL1e91AIVj-KIrWxg8Ps6GprXhs'
 TELEGRAM_CHAT_ID = '-1002411014709'
 
 
-def convert_webp_to_png(webp_path):
-    img = PILImage.open(webp_path)
-    temp_png_path = webp_path.replace('.webp', '.png')
-    img.save(temp_png_path, 'PNG')
-    return temp_png_path
+def convert_webp_to_png(photo_path):
+    """Конвертирует изображение .webp в .png."""
+    png_path = photo_path.replace('.webp', '.png')
+    with PILImage.open(photo_path) as img:
+        img.save(png_path, 'PNG')
+    return png_path
 
 
 def generate_order_excel(order):
+    """Генерирует Excel-файл с заказом."""
     wb = Workbook()
     ws = wb.active
     ws.title = "Order"
 
-    # Устанавливаем значения и выравнивание для заголовков
+    # Заголовки
     headers = ["Название клиента:", order.client, "Использованный НДС:", f"{order.vat}%"]
     for col in range(0, len(headers), 2):
         cell = ws.cell(row=1 + col // 2, column=1, value=headers[col])
@@ -31,7 +45,7 @@ def generate_order_excel(order):
         cell = ws.cell(row=1 + col // 2, column=2, value=headers[col + 1])
         cell.alignment = Alignment(horizontal='center', vertical='center')
 
-    # Заголовки таблицы
+    # Таблица с продуктами
     table_headers = ["Название продукта", "Фото", "Количество", "Цена за единицу", "Общая стоимость"]
     for col_num, header in enumerate(table_headers, 1):
         cell = ws.cell(row=4, column=col_num, value=header)
@@ -44,17 +58,22 @@ def generate_order_excel(order):
 
         if product.photo:
             photo_path = product.photo.path
-            if photo_path.lower().endswith('.webp'):
-                photo_path = convert_webp_to_png(photo_path)
+            try:
+                # Если изображение в формате .webp, конвертируем его
+                if photo_path.lower().endswith('.webp'):
+                    photo_path = convert_webp_to_png(photo_path)
 
-            img = Image(photo_path)
-            img.width = 30  # Установите ширину изображения (в соответствии с шириной ячейки)
-            img.height = 30  # Установите высоту изображения (в соответствии с высотой ячейки)
+                img = Image(photo_path)
+                img.width = 30  # Устанавливаем ширину изображения
+                img.height = 30  # Устанавливаем высоту изображения
 
-            # Привязка изображения к ячейке
-            img.anchor = f'B{row_num}'  # Привязка к ячейке
-
-            ws.add_image(img)
+                # Добавляем изображение в ячейку
+                img.anchor = f'B{row_num}'
+                ws.add_image(img)
+            except Exception as e:
+                # Обработка ошибок при добавлении изображения
+                print(f"Ошибка обработки изображения: {e}")
+                ws.cell(row=row_num, column=2, value="Изображение недоступно")
 
         ws.cell(row=row_num, column=3, value=product.quantity).alignment = Alignment(horizontal='center',
                                                                                      vertical='center')
@@ -63,11 +82,10 @@ def generate_order_excel(order):
         ws.cell(row=row_num, column=5, value=product.quantity * product.price).alignment = Alignment(
             horizontal='center', vertical='center')
 
-        # Устанавливаем высоту строки для изображений
-        ws.row_dimensions[row_num].height = 30  # Высота строки для соответствия высоте изображения
-
+        ws.row_dimensions[row_num].height = 30  # Устанавливаем высоту строки для соответствия изображения
         row_num += 1
 
+    # Итого
     total_price = order.get_total_price()
     total_price_with_vat = order.get_total_price_with_vat()
 
@@ -81,13 +99,14 @@ def generate_order_excel(order):
     ws.cell(row=row_num + 1, column=5, value=total_price_with_vat).font = Font(bold=True)
     ws.cell(row=row_num + 1, column=5).alignment = Alignment(horizontal='center', vertical='center')
 
-    # Устанавливаем ширину столбцов
-    ws.column_dimensions['A'].width = 30  # Ширина столбца "Название продукта"
-    ws.column_dimensions['B'].width = 30  # Ширина столбца "Фото" (размер ячейки для изображения)
-    ws.column_dimensions['C'].width = 20  # Ширина столбца "Количество"
-    ws.column_dimensions['D'].width = 20  # Ширина столбца "Цена за единицу"
-    ws.column_dimensions['E'].width = 20  # Ширина столбца "Общая стоимость"
+    # Настройка ширины колонок
+    ws.column_dimensions['A'].width = 30
+    ws.column_dimensions['B'].width = 30
+    ws.column_dimensions['C'].width = 20
+    ws.column_dimensions['D'].width = 20
+    ws.column_dimensions['E'].width = 20
 
+    # Сохраняем Excel-файл
     file_name = f"order_{order.id}.xlsx"
     file_path = os.path.join("/tmp", file_name)
     wb.save(file_path)
@@ -95,13 +114,126 @@ def generate_order_excel(order):
     return file_path
 
 
-def send_order_to_telegram(order):
-    file_path = generate_order_excel(order)
+# Функция для регистрации шрифта
+def register_fonts():
+    # Путь к файлу шрифта (из папки static/fonts или просто fonts)
+    font_path = os.path.join(os.path.dirname(__file__), 'static', 'fonts', 'Roboto-Regular.ttf')  # Для веб-проектов
+    # Для автономного проекта используйте:
+    # font_path = os.path.join(os.path.dirname(__file__), 'fonts', 'Roboto-Regular.ttf')
+
+    # Регистрация шрифта Roboto
+    pdfmetrics.registerFont(TTFont('Roboto', font_path))
+
+
+# Функция для конвертации изображения (если оно в формате webp)
+def convert_image_for_pdf(photo_path):
+    """Конвертирует изображение для вставки в PDF, если оно в формате .webp."""
+    if photo_path.lower().endswith('.webp'):
+        png_path = photo_path.replace('.webp', '.png')
+        with PILImage.open(photo_path) as img:
+            img.save(png_path, 'PNG')
+        return png_path
+    return photo_path
+
+
+# Основная функция для генерации PDF
+def generate_order_pdf(order):
+    # Регистрация шрифтов (предполагается, что функция существует)
+    register_fonts()
+
+    pdf_file_name = f"order_{order.id}.pdf"
+    pdf_file_path = os.path.join("/tmp", pdf_file_name)
+    pdf_canvas = canvas.Canvas(pdf_file_path, pagesize=A4)
+    width, height = A4
+
+    # Заголовок
+    pdf_canvas.setFont("Roboto", 14)
+    pdf_canvas.drawString(2 * cm, height - 2 * cm, "Информация о заказе")
+
+    # Клиент и НДС
+    pdf_canvas.setFont("Roboto", 12)
+    pdf_canvas.drawString(2 * cm, height - 3 * cm, f"Название клиента: {order.client}")
+    pdf_canvas.drawString(2 * cm, height - 4 * cm, f"Использованный НДС: {order.vat}%")
+
+    # Данные таблицы товаров
+    data = [["Название продукта", "Фото", "Количество", "Цена за единицу", "Общая стоимость"]]
+
+    for product in order.products.all():
+        row = [product.name, "", product.quantity, product.price, product.quantity * product.price]
+
+        # Обработка фото продукта
+        if product.photo:
+            photo_path = convert_image_for_pdf(product.photo.path)
+            if os.path.exists(photo_path):
+                img = ReportLabImage(photo_path, width=2 * cm, height=2 * cm)
+                row[1] = img
+
+        data.append(row)
+
+    # Создание таблицы с товарами
+    table = Table(data, colWidths=[6 * cm, 2 * cm, 3 * cm, 4 * cm, 4 * cm])
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('FONTNAME', (0, 0), (0, -1), 'Roboto'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Roboto'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+    ]))
+
+    # Получаем размеры таблицы
+    table.wrapOn(pdf_canvas, width, height)
+    x_position = (width - table._width) / 2
+    table.drawOn(pdf_canvas, x_position, height - 10 * cm)
+
+    # Расчет итогов
+    total_price = order.get_total_price()
+    total_price_with_vat = order.get_total_price_with_vat()
+
+    # Данные итогов
+    totals_data = [
+        ["Итого без НДС", f"{total_price:.2f}"],
+        ["Итого с НДС", f"{total_price_with_vat:.2f}"]
+    ]
+
+    # Создание таблицы с итогами
+    totals_table = Table(totals_data, colWidths=[9 * cm, 4 * cm])
+    totals_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+        ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
+        ('ALIGN', (1, 0), (1, -1), 'RIGHT'),  # Выравнивание итоговых сумм по правому краю
+        ('VALIGN', (0, 0), (-1, -1), 'BOTTOM'),  # Выравнивание по нижнему краю
+        ('FONTNAME', (0, 0), (-1, -1), 'Roboto'),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+    ]))
+
+    # Позиционирование таблицы итогов ниже таблицы продуктов
+    totals_table.wrapOn(pdf_canvas, width, height)
+    totals_x_position = x_position  # Расположение итогов будет выровнено с таблицей продуктов
+    totals_table.drawOn(pdf_canvas, totals_x_position, height - 12 * cm - table._height)
+
+    # Сохранение PDF
+    pdf_canvas.save()
+
+    return pdf_file_path
+
+
+def send_order_to_telegram(order, file_type='excel'):
+    """Отправляет заказ в Telegram в виде Excel- или PDF-файла."""
+    if file_type == 'pdf':
+        file_path = generate_order_pdf(order)
+    else:
+        file_path = generate_order_excel(order)
 
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendDocument"
     with open(file_path, 'rb') as file:
         response = requests.post(url, data={'chat_id': TELEGRAM_CHAT_ID}, files={'document': file})
 
+    # Удаляем временный файл после отправки
     os.remove(file_path)
 
     return response.status_code == 200

@@ -7,6 +7,12 @@ from rest_framework.response import Response
 from django.http import JsonResponse
 from .utils import send_order_to_telegram
 from django.views.decorators.csrf import csrf_exempt
+import logging
+import os
+from django.conf import settings
+from django.utils.translation import gettext_lazy as _
+
+logger = logging.getLogger(__name__)
 
 
 class OrderListCreateAPIView(APIView):
@@ -59,8 +65,6 @@ class OrderProductsAPIView(APIView):
             return Response({"detail": "Продукты для этого заказа не найдены."}, status=status.HTTP_404_NOT_FOUND)
 
         serializer = OrderProductSerializer(products, many=True)
-
-        # Общая сумма по всем продуктам заказа
         total_order_price = sum([product.quantity * product.price for product in products])
 
         return Response({
@@ -74,22 +78,20 @@ class OrderProductsAPIView(APIView):
         """
         order = get_object_or_404(Order, id=order_id)
         data = request.data.copy()
-
-        # Указание id заказа
+        data.pop('id', None)
         data['order'] = order.id
 
-        # Проверка наличия файла фото
         if 'photo' in request.FILES:
             data['photo'] = request.FILES['photo']
 
+        logger.debug(f"Data before saving: {data}")
         serializer = OrderProductSerializer(data=data)
 
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
-            # Логирование ошибок сериализатора для отладки
-            print(f"Ошибки сериализатора: {serializer.errors}")
+            logger.error(f"Ошибки сериализатора: {serializer.errors}")
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request, order_id, product_id):
@@ -98,11 +100,9 @@ class OrderProductsAPIView(APIView):
         """
         order = get_object_or_404(Order, id=order_id)
         product = get_object_or_404(OrderProduct, id=product_id, order=order)
-
         data = request.data.copy()
         data['order'] = order.id
 
-        # Обработка фото, если оно передается
         if 'photo' in request.FILES:
             data['photo'] = request.FILES['photo']
 
@@ -117,12 +117,20 @@ class OrderProductsAPIView(APIView):
 
     def delete(self, request, order_id, product_id):
         """
-        Удалить продукт из указанного заказа.
+        Удалить продукт из указанного заказа и его фото.
         """
         order = get_object_or_404(Order, id=order_id)
         product = get_object_or_404(OrderProduct, id=product_id, order=order)
 
-        product.delete()
+        if product.photo:
+            photo_path = product.photo.path
+            product.delete()
+
+            if os.path.exists(photo_path):
+                os.remove(photo_path)
+        else:
+            product.delete()
+
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -149,11 +157,17 @@ class OrderRejectAPIView(APIView):
 @csrf_exempt
 def export_order_to_telegram(request, order_id):
     """
-    Эндпоинт для экспорта заказа в Telegram без проверки CSRF.
+    Эндпоинт для экспорта заказа в Telegram в формате Excel или PDF.
     """
     try:
+        # Получаем заказ по ID
         order = Order.objects.get(id=order_id)
-        success = send_order_to_telegram(order)
+
+        # Получаем тип файла из параметров GET, по умолчанию 'excel'
+        file_type = request.GET.get('file_type', 'excel')
+
+        # Отправляем заказ в Telegram
+        success = send_order_to_telegram(order, file_type=file_type)
 
         if success:
             return JsonResponse({'status': 'success', 'message': 'Заказ успешно отправлен в Telegram.'})

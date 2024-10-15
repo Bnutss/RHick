@@ -1,8 +1,5 @@
 from django.db import models
 from django.utils import timezone
-from datetime import timedelta
-from PIL import Image
-import os
 
 
 class Order(models.Model):
@@ -68,22 +65,7 @@ class OrderProduct(models.Model):
     def save(self, *args, **kwargs):
         if self.pk and self.photo:
             old_photo = OrderProduct.objects.get(pk=self.pk).photo
-            if old_photo != self.photo:
+            if old_photo and old_photo != self.photo:
                 old_photo.delete(save=False)
 
         super().save(*args, **kwargs)
-
-        if self.photo:
-            img = Image.open(self.photo.path)
-
-            if img.mode != 'RGB':
-                img = img.convert('RGB')
-
-            img.save(self.photo.path, 'WEBP', quality=85)
-
-            if not self.photo.name.lower().endswith('.webp'):
-                os.remove(self.photo.path)
-                self.photo.name = os.path.splitext(self.photo.name)[0] + '.webp'
-                img.save(self.photo.path, 'WEBP', quality=85)
-
-            super().save(*args, **kwargs)
