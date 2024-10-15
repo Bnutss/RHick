@@ -44,6 +44,10 @@ class OrderDetailAPIView(APIView):
 
 
 class OrderProductsAPIView(APIView):
+    """
+    API для работы с продуктами заказа
+    """
+
     def get(self, request, order_id):
         """
         Получить список продуктов для указанного заказа и общую сумму заказа.
@@ -56,6 +60,7 @@ class OrderProductsAPIView(APIView):
 
         serializer = OrderProductSerializer(products, many=True)
 
+        # Общая сумма по всем продуктам заказа
         total_order_price = sum([product.quantity * product.price for product in products])
 
         return Response({
@@ -69,9 +74,11 @@ class OrderProductsAPIView(APIView):
         """
         order = get_object_or_404(Order, id=order_id)
         data = request.data.copy()
+
+        # Указание id заказа
         data['order'] = order.id
 
-        # Добавляем фотографию, если она есть в запросе
+        # Проверка наличия файла фото
         if 'photo' in request.FILES:
             data['photo'] = request.FILES['photo']
 
@@ -80,7 +87,10 @@ class OrderProductsAPIView(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            # Логирование ошибок сериализатора для отладки
+            print(f"Ошибки сериализатора: {serializer.errors}")
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request, order_id, product_id):
         """
@@ -92,7 +102,7 @@ class OrderProductsAPIView(APIView):
         data = request.data.copy()
         data['order'] = order.id
 
-        # Добавляем фотографию, если она есть в запросе
+        # Обработка фото, если оно передается
         if 'photo' in request.FILES:
             data['photo'] = request.FILES['photo']
 
@@ -101,7 +111,9 @@ class OrderProductsAPIView(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            print(f"Ошибки сериализатора: {serializer.errors}")
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, order_id, product_id):
         """
@@ -109,6 +121,7 @@ class OrderProductsAPIView(APIView):
         """
         order = get_object_or_404(Order, id=order_id)
         product = get_object_or_404(OrderProduct, id=product_id, order=order)
+
         product.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
