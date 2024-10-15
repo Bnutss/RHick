@@ -18,7 +18,8 @@ from reportlab.pdfbase import pdfmetrics
 mimetypes.add_type('image/webp', '.webp')
 
 TELEGRAM_BOT_TOKEN = '7775474735:AAFHyJw-YL1e91AIVj-KIrWxg8Ps6GprXhs'
-TELEGRAM_CHAT_ID = '-1002411014709'
+# TELEGRAM_CHAT_ID = '-1002411014709'
+TELEGRAM_CHAT_ID = '-4535617387'
 
 
 def convert_webp_to_png(photo_path):
@@ -107,7 +108,7 @@ def generate_order_excel(order):
     ws.column_dimensions['E'].width = 20
 
     # Сохраняем Excel-файл
-    file_name = f"order_{order.id}.xlsx"
+    file_name = f"Заказ-{order.id}.xlsx"
     file_path = os.path.join("/tmp", file_name)
     wb.save(file_path)
 
@@ -136,11 +137,12 @@ def convert_image_for_pdf(photo_path):
 
 
 # Основная функция для генерации PDF
+# Основная функция для генерации PDF
+# Основная функция для генерации PDF
 def generate_order_pdf(order):
-    # Регистрация шрифтов (предполагается, что функция существует)
     register_fonts()
 
-    pdf_file_name = f"order_{order.id}.pdf"
+    pdf_file_name = f"Заказ-{order.id}.pdf"
     pdf_file_path = os.path.join("/tmp", pdf_file_name)
     pdf_canvas = canvas.Canvas(pdf_file_path, pagesize=A4)
     width, height = A4
@@ -148,6 +150,12 @@ def generate_order_pdf(order):
     # Заголовок
     pdf_canvas.setFont("Roboto", 14)
     pdf_canvas.drawString(2 * cm, height - 2 * cm, "Информация о заказе")
+
+    # Логотип в правом верхнем углу с уменьшенным размером
+    logo_path = os.path.join(os.path.dirname(__file__), 'static', 'images',
+                             'logo.png')  # Замените на ваш путь к логотипу
+    if os.path.exists(logo_path):
+        pdf_canvas.drawImage(logo_path, width - 3 * cm, height - 3 * cm, width=2 * cm, height=2 * cm, mask='auto')
 
     # Клиент и НДС
     pdf_canvas.setFont("Roboto", 12)
