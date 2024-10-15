@@ -1,0 +1,42 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>RHiK</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+     <link rel="icon" href="{% static 'users/images/favicon/favicon.ico' %}" type="image/x-icon"/>
+    <link rel="stylesheet" href="{% static 'users/css/styles.css' %}">
+</head>
+<body>
+<div class="background">
+    <div class="shape"></div>
+    <div class="shape"></div>
+</div>
+<form method="post" action="{% url 'users:login' %}">
+    {% csrf_token %}
+    <h3><i class="fas fa-user-circle"></i> RHiK</h3>
+    <label for="username"><i class="fas fa-user"></i> Логин</label>
+    <input type="text" name="username" placeholder="Введите логин" id="username" required>
+    <label for="password"><i class="fas fa-lock"></i> Пароль</label>
+    <input type="password" name="password" placeholder="Введите пароль" id="password" required>
+    <button type="submit">Войти</button>
+    <div class="message-container">
+        {% if messages %}
+            <ul>
+                {% for message in messages %}
+                    <li class="{{ message.tags }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+
+    <div class="social">
+        <div class="go"><i class="fab fa-google"></i> Google</div>
+        <div class="fb"><i class="fab fa-facebook"></i> Facebook</div>
+    </div>
+</form>
+<script src="{% static 'users/js/login.js' %}"></script>
+</body>
+</html>
