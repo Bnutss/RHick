@@ -8,12 +8,9 @@ import mimetypes
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 from reportlab.lib.units import cm
-from reportlab.pdfgen import canvas
-from reportlab.platypus import Table, TableStyle, Image as ReportLabImage, Spacer
-from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase import pdfmetrics
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Image as ReportLabImage
+from reportlab.platypus import SimpleDocTemplate, Table, Spacer, TableStyle, Image as ReportLabImage
 
 # Регистрация MIME-типа для .webp
 mimetypes.add_type('image/webp', '.webp')
