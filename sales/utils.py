@@ -9,21 +9,20 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 from reportlab.lib.units import cm
 from reportlab.pdfgen import canvas
-from reportlab.platypus import Table, TableStyle, Image as ReportLabImage
+from reportlab.platypus import Table, TableStyle, Image as ReportLabImage, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase import pdfmetrics
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Image as ReportLabImage
 
 # Регистрация MIME-типа для .webp
 mimetypes.add_type('image/webp', '.webp')
 
 TELEGRAM_BOT_TOKEN = '7775474735:AAFHyJw-YL1e91AIVj-KIrWxg8Ps6GprXhs'
-TELEGRAM_CHAT_ID = '-1002411014709'
+# TELEGRAM_CHAT_ID = '-1002411014709'
 
 
-###
-
-# TELEGRAM_CHAT_ID = '-4535617387'
+TELEGRAM_CHAT_ID = '-4535617387'
 
 
 def convert_webp_to_png(photo_path):
@@ -146,27 +145,23 @@ def generate_order_pdf(order):
 
     pdf_file_name = f"Заказ-{order.id}.pdf"
     pdf_file_path = os.path.join("/tmp", pdf_file_name)
-    pdf_canvas = canvas.Canvas(pdf_file_path, pagesize=A4)
-    width, height = A4
-    current_y_position = height - 2 * cm
-
-    # Заголовок
-    pdf_canvas.setFont("Roboto", 14)
-    pdf_canvas.drawString(1 * cm, current_y_position, "Информация")
-    current_y_position -= 1 * cm
+    doc = SimpleDocTemplate(pdf_file_path, pagesize=A4, rightMargin=1 * cm, leftMargin=1 * cm, topMargin=1 * cm,
+                            bottomMargin=1 * cm)
+    elements = []
 
     # Логотип в правом верхнем углу с уменьшенным размером
     logo_path = os.path.join(os.path.dirname(__file__), 'static', 'images',
                              'logo.png')  # Замените на ваш путь к логотипу
     if os.path.exists(logo_path):
-        pdf_canvas.drawImage(logo_path, width - 3 * cm, height - 3 * cm, width=2 * cm, height=2 * cm, mask='auto')
+        logo = ReportLabImage(logo_path, width=2 * cm, height=2 * cm)
+        elements.append(Table([[logo]], colWidths=[18 * cm], style=[('ALIGN', (0, 0), (-1, -1), 'RIGHT')]))
 
-    # Клиент и НДС
-    pdf_canvas.setFont("Roboto", 12)
-    pdf_canvas.drawString(1 * cm, current_y_position, f"Клиент: {order.client}")
-    current_y_position -= 1 * cm
-    pdf_canvas.drawString(1 * cm, current_y_position, f"НДС: {order.vat}%")
-    current_y_position -= 1 * cm
+    elements.append(Spacer(1, 0.2 * cm))  # Небольшой отступ после логотипа
+
+    # Таблица с клиентом и НДС
+    elements.append(Table([[f"Клиент: {order.client}"], [f"НДС: {order.vat}%"]], colWidths=[18 * cm],
+                          style=[('FONTNAME', (0, 0), (-1, -1), 'Roboto'), ('FONTSIZE', (0, 0), (-1, -1), 10)]))
+    elements.append(Spacer(2, 0.2 * cm))  # Добавляем небольшой отступ
 
     # Данные таблицы товаров
     data = [["Название продукта", "Фото", "Количество", "Цена за единицу", "Общая стоимость"]]
@@ -178,35 +173,28 @@ def generate_order_pdf(order):
         if product.photo:
             photo_path = convert_image_for_pdf(product.photo.path)
             if os.path.exists(photo_path):
-                img = ReportLabImage(photo_path, width=2 * cm, height=2 * cm)
+                img = ReportLabImage(photo_path, width=1.5 * cm, height=1.5 * cm)
                 row[1] = img
 
         data.append(row)
 
     # Создание таблицы с товарами
-    table = Table(data, colWidths=[6 * cm, 2 * cm, 3 * cm, 4 * cm, 4 * cm])
+    table = Table(data, colWidths=[5 * cm, 2 * cm, 3 * cm, 4 * cm, 4 * cm])  # Уменьшаем ширину столбцов
     table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('FONTNAME', (0, 0), (0, -1), 'Roboto'),
-        ('FONTSIZE', (0, 1), (0, -1), 8),  # Уменьшаем шрифт в названиях продукта до 10
+        ('FONTSIZE', (0, 1), (0, -1), 7.3),  # Уменьшаем шрифт в названиях продукта до 6
         ('FONTNAME', (0, 0), (-1, 0), 'Roboto'),
         ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
         ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
         ('GRID', (0, 0), (-1, -1), 1, colors.black),
     ]))
 
-    # Получаем размеры таблицы и центрируем её по горизонтали
-    table.wrapOn(pdf_canvas, width, height)
-    x_position = (width - table._width) / 2  # Центрирование таблицы
-    if current_y_position - table._height < 2 * cm:
-        pdf_canvas.showPage()  # Создаем новую страницу
-        current_y_position = height - 2 * cm  # Начинаем с новой страницы
-
-    table.drawOn(pdf_canvas, x_position, current_y_position - table._height)
-    current_y_position -= table._height + 1.5 * cm
+    elements.append(table)
+    elements.append(Spacer(1, 0.5 * cm))  # Добавляем отступ
 
     # Расчет итогов
     total_price = order.get_total_price()
@@ -219,7 +207,7 @@ def generate_order_pdf(order):
     ]
 
     # Создание таблицы с итогами
-    totals_table = Table(totals_data, colWidths=[9 * cm, 4 * cm])
+    totals_table = Table(totals_data, colWidths=[5 * cm, 13 * cm])
     totals_table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
         ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
@@ -230,17 +218,10 @@ def generate_order_pdf(order):
         ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
     ]))
 
-    # Центрирование таблицы итогов по горизонтали
-    totals_table.wrapOn(pdf_canvas, width, height)
-    totals_x_position = (width - totals_table._width) / 2  # Центрирование таблицы
-    if current_y_position - totals_table._height < 2 * cm:
-        pdf_canvas.showPage()  # Создаем новую страницу
-        current_y_position = height - 2 * cm  # Начинаем с новой страницы
-
-    totals_table.drawOn(pdf_canvas, totals_x_position, current_y_position - totals_table._height)
+    elements.append(totals_table)
 
     # Сохранение PDF
-    pdf_canvas.save()
+    doc.build(elements)
 
     return pdf_file_path
 
