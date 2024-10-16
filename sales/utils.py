@@ -151,7 +151,7 @@ def generate_order_pdf(order):
 
     # Логотип в правом верхнем углу с уменьшенным размером
     logo_path = os.path.join(os.path.dirname(__file__), 'static', 'images',
-                             'logo.png')  # Замените на ваш путь к логотипу
+                             'Logo.png')  # Замените на ваш путь к логотипу
     if os.path.exists(logo_path):
         logo = ReportLabImage(logo_path, width=2 * cm, height=2 * cm)
         elements.append(Table([[logo]], colWidths=[18 * cm], style=[('ALIGN', (0, 0), (-1, -1), 'RIGHT')]))
