@@ -139,8 +139,6 @@ def convert_image_for_pdf(photo_path):
 
 
 # Основная функция для генерации PDF
-# Основная функция для генерации PDF
-# Основная функция для генерации PDF
 def generate_order_pdf(order):
     register_fonts()
 
@@ -148,10 +146,12 @@ def generate_order_pdf(order):
     pdf_file_path = os.path.join("/tmp", pdf_file_name)
     pdf_canvas = canvas.Canvas(pdf_file_path, pagesize=A4)
     width, height = A4
+    current_y_position = height - 2 * cm
 
     # Заголовок
     pdf_canvas.setFont("Roboto", 14)
-    pdf_canvas.drawString(2 * cm, height - 2 * cm, "Информация о заказе")
+    pdf_canvas.drawString(1 * cm, current_y_position, "Информация")
+    current_y_position -= 1 * cm
 
     # Логотип в правом верхнем углу с уменьшенным размером
     logo_path = os.path.join(os.path.dirname(__file__), 'static', 'images',
@@ -161,8 +161,10 @@ def generate_order_pdf(order):
 
     # Клиент и НДС
     pdf_canvas.setFont("Roboto", 12)
-    pdf_canvas.drawString(2 * cm, height - 3 * cm, f"Название клиента: {order.client}")
-    pdf_canvas.drawString(2 * cm, height - 4 * cm, f"Использованный НДС: {order.vat}%")
+    pdf_canvas.drawString(1 * cm, current_y_position, f"Клиент: {order.client}")
+    current_y_position -= 1 * cm
+    pdf_canvas.drawString(1 * cm, current_y_position, f"НДС: {order.vat}%")
+    current_y_position -= 1 * cm
 
     # Данные таблицы товаров
     data = [["Название продукта", "Фото", "Количество", "Цена за единицу", "Общая стоимость"]]
@@ -187,16 +189,22 @@ def generate_order_pdf(order):
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('FONTNAME', (0, 0), (0, -1), 'Roboto'),
+        ('FONTSIZE', (0, 1), (0, -1), 8),  # Уменьшаем шрифт в названиях продукта до 10
         ('FONTNAME', (0, 0), (-1, 0), 'Roboto'),
         ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
         ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
         ('GRID', (0, 0), (-1, -1), 1, colors.black),
     ]))
 
-    # Получаем размеры таблицы
+    # Получаем размеры таблицы и центрируем её по горизонтали
     table.wrapOn(pdf_canvas, width, height)
-    x_position = (width - table._width) / 2
-    table.drawOn(pdf_canvas, x_position, height - 10 * cm)
+    x_position = (width - table._width) / 2  # Центрирование таблицы
+    if current_y_position - table._height < 2 * cm:
+        pdf_canvas.showPage()  # Создаем новую страницу
+        current_y_position = height - 2 * cm  # Начинаем с новой страницы
+
+    table.drawOn(pdf_canvas, x_position, current_y_position - table._height)
+    current_y_position -= table._height + 1.5 * cm
 
     # Расчет итогов
     total_price = order.get_total_price()
@@ -220,10 +228,14 @@ def generate_order_pdf(order):
         ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
     ]))
 
-    # Позиционирование таблицы итогов ниже таблицы продуктов
+    # Центрирование таблицы итогов по горизонтали
     totals_table.wrapOn(pdf_canvas, width, height)
-    totals_x_position = x_position  # Расположение итогов будет выровнено с таблицей продуктов
-    totals_table.drawOn(pdf_canvas, totals_x_position, height - 12 * cm - table._height)
+    totals_x_position = (width - totals_table._width) / 2  # Центрирование таблицы
+    if current_y_position - totals_table._height < 2 * cm:
+        pdf_canvas.showPage()  # Создаем новую страницу
+        current_y_position = height - 2 * cm  # Начинаем с новой страницы
+
+    totals_table.drawOn(pdf_canvas, totals_x_position, current_y_position - totals_table._height)
 
     # Сохранение PDF
     pdf_canvas.save()
