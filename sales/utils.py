@@ -153,7 +153,7 @@ def generate_order_pdf(order):
     logo_path = os.path.join(os.path.dirname(__file__), 'static', 'images',
                              'Logo.png')  # Замените на ваш путь к логотипу
     if os.path.exists(logo_path):
-        logo = ReportLabImage(logo_path, width=2 * cm, height=2 * cm)
+        logo = ReportLabImage(logo_path, width=1.3 * cm, height=1.3 * cm)
         elements.append(Table([[logo]], colWidths=[18 * cm], style=[('ALIGN', (0, 0), (-1, -1), 'RIGHT')]))
 
     elements.append(Spacer(1, 0.2 * cm))  # Небольшой отступ после логотипа
