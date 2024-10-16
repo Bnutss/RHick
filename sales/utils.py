@@ -159,7 +159,7 @@ def generate_order_pdf(order):
     elements.append(Spacer(1, 0.2 * cm))  # Небольшой отступ после логотипа
 
     # Таблица с клиентом и НДС
-    elements.append(Table([[f"Клиент: {order.client}"], [f"НДС: {order.vat}%"]], colWidths=[18 * cm],
+    elements.append(Table([[f"Клиент: {order.client}"], [f"НДС: {order.vat}%"]], colWidths=[20 * cm],
                           style=[('FONTNAME', (0, 0), (-1, -1), 'Roboto'), ('FONTSIZE', (0, 0), (-1, -1), 10)]))
     elements.append(Spacer(2, 0.2 * cm))  # Добавляем небольшой отступ
 
@@ -173,13 +173,13 @@ def generate_order_pdf(order):
         if product.photo:
             photo_path = convert_image_for_pdf(product.photo.path)
             if os.path.exists(photo_path):
-                img = ReportLabImage(photo_path, width=1.5 * cm, height=1.5 * cm)
+                img = ReportLabImage(photo_path, width=1 * cm, height=1 * cm)
                 row[1] = img
 
         data.append(row)
 
     # Создание таблицы с товарами
-    table = Table(data, colWidths=[5 * cm, 2 * cm, 3 * cm, 4 * cm, 4 * cm])  # Уменьшаем ширину столбцов
+    table = Table(data, colWidths=[7 * cm, 2 * cm, 3 * cm, 4 * cm, 4 * cm])  # Уменьшаем ширину столбцов
     table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
@@ -207,7 +207,7 @@ def generate_order_pdf(order):
     ]
 
     # Создание таблицы с итогами
-    totals_table = Table(totals_data, colWidths=[5 * cm, 13 * cm])
+    totals_table = Table(totals_data, colWidths=[5 * cm, 15 * cm])
     totals_table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
         ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
