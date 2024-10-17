@@ -12,7 +12,8 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ['id', 'client', 'vat', 'is_confirmed', 'is_rejected', 'confirmed_at', 'warranty_days_left',
+        fields = ['id', 'client', 'vat', 'created_at', 'is_confirmed', 'is_rejected', 'confirmed_at',
+                  'warranty_days_left',
                   'total_price_without_vat', 'total_price_with_vat']
 
     # Метод для расчета оставшихся дней гарантии

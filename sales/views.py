@@ -9,8 +9,8 @@ from .utils import send_order_to_telegram
 from django.views.decorators.csrf import csrf_exempt
 import logging
 import os
-from django.conf import settings
-from django.utils.translation import gettext_lazy as _
+from django.utils.dateparse import parse_date
+from datetime import datetime, time
 
 logger = logging.getLogger(__name__)
 
@@ -176,3 +176,30 @@ def export_order_to_telegram(request, order_id):
 
     except Order.DoesNotExist:
         return JsonResponse({'status': 'error', 'message': 'Заказ не найден.'}, status=404)
+
+
+class ConfirmedOrdersView(APIView):
+    def get(self, request, *args, **kwargs):
+        start_date = request.query_params.get('start_date')
+        end_date = request.query_params.get('end_date')
+        confirmed_orders = Order.objects.filter(is_confirmed=True)
+
+        if start_date:
+            start_date = parse_date(start_date)
+            if start_date:
+                start_datetime = datetime.combine(start_date, time.min)
+                confirmed_orders = confirmed_orders.filter(created_at__gte=start_datetime)
+
+        if end_date:
+            end_date = parse_date(end_date)
+            if end_date:
+                end_datetime = datetime.combine(end_date, time.max)
+                confirmed_orders = confirmed_orders.filter(created_at__lte=end_datetime)
+
+        serializer = OrderSerializer(confirmed_orders, many=True)
+        total_sum = sum(order.get_total_price_with_vat() for order in confirmed_orders)
+
+        return Response({
+            "orders": serializer.data,
+            "total_sum": total_sum
+        }, status=status.HTTP_200_OK)
