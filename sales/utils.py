@@ -47,7 +47,7 @@ def generate_order_excel(order):
         cell.alignment = Alignment(horizontal='center', vertical='center')
 
     # Таблица с продуктами
-    table_headers = ["Название продукта", "Фото", "Количество", "Цена за единицу", "Общая стоимость"]
+    table_headers = ["Название товара", "Фото", "Количество", "Цена за единицу", "Общая стоимость"]
     for col_num, header in enumerate(table_headers, 1):
         cell = ws.cell(row=4, column=col_num, value=header)
         cell.font = Font(bold=True)
@@ -161,7 +161,7 @@ def generate_order_pdf(order):
     elements.append(Spacer(2, 0.2 * cm))  # Добавляем небольшой отступ
 
     # Данные таблицы товаров
-    data = [["Название продукта", "Фото", "Количество", "Цена за единицу", "Общая стоимость"]]
+    data = [["Название товара", "Фото", "Количество", "Цена за единицу", "Общая стоимость"]]
 
     for product in order.products.all():
         row = [product.name, "", product.quantity, product.price, product.quantity * product.price]
