@@ -4,7 +4,9 @@ from django.utils import timezone
 
 class Order(models.Model):
     client = models.CharField(max_length=100, verbose_name='Название клиента')
-    vat = models.DecimalField(max_digits=5, decimal_places=2, verbose_name='НДС (%)')
+    vat = models.DecimalField(max_digits=5, decimal_places=2, verbose_name='НДС (%)', blank=True, null=True)
+    additional_expenses = models.DecimalField(max_digits=5, decimal_places=2, verbose_name='Прочие расходы (%)',
+                                              blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
     is_confirmed = models.BooleanField(default=False, verbose_name="Подтвержденный заказ")
     is_rejected = models.BooleanField(default=False, verbose_name="Отклоненный заказ")
@@ -27,11 +29,13 @@ class Order(models.Model):
 
     def get_total_price_with_vat(self):
         """
-        Вычисляем общую стоимость заказа с НДС.
+        Вычисляем общую стоимость заказа с учетом НДС и прочих расходов.
         """
         total_price = self.get_total_price()
-        vat_multiplier = 1 + (self.vat / 100)  # НДС как множитель (например, 12% -> 1.12)
-        return total_price * vat_multiplier
+        vat_multiplier = 1 + (self.vat / 100 if self.vat else 0)  # Учет НДС
+        additional_expenses_multiplier = 1 + (
+            self.additional_expenses / 100 if self.additional_expenses else 0)  # Учет прочих расходов
+        return total_price * vat_multiplier * additional_expenses_multiplier
 
     def save(self, *args, **kwargs):
         if self.is_confirmed and self.confirmed_at is None:

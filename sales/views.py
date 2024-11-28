@@ -1,4 +1,6 @@
 from rest_framework import status
+from rest_framework.permissions import AllowAny
+
 from .models import Order, OrderProduct
 from .serializers import OrderSerializer, OrderProductSerializer, OrderDetailSerializer
 from django.shortcuts import get_object_or_404
@@ -30,6 +32,8 @@ class OrderListCreateAPIView(APIView):
 
 
 class OrderDetailAPIView(APIView):
+    permission_classes = [AllowAny]
+
     def get(self, request, pk):
         order = get_object_or_404(Order, pk=pk)
         serializer = OrderDetailSerializer(order)
@@ -196,8 +200,9 @@ class ConfirmedOrdersView(APIView):
                 end_datetime = datetime.combine(end_date, time.max)
                 confirmed_orders = confirmed_orders.filter(created_at__lte=end_datetime)
 
+        # Serialize the data
         serializer = OrderSerializer(confirmed_orders, many=True)
-        total_sum = sum(order.get_total_price_with_vat() for order in confirmed_orders)
+        total_sum = sum(order['total_price_with_vat'] for order in serializer.data)
 
         return Response({
             "orders": serializer.data,
