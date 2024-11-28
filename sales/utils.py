@@ -177,11 +177,14 @@ def generate_order_pdf(order):
 
     # Таблица с клиентом и НДС
     elements.append(
-        Table([[f"Клиент: {order.client}"], [f"НДС: {order.vat}%"], [f"Прочие расходы: {order.additional_expenses}%"]],
+        Table([[f"Клиент: {order.client}"],
+               [f"НДС: {order.vat if order.vat is not None else 'не указано'}%"],
+               [
+                   f"Прочие расходы: {order.additional_expenses if order.additional_expenses is not None else 'не указано'}%"]],
               colWidths=[20 * cm],
               style=[('FONTNAME', (0, 0), (-1, -1), 'Roboto'), ('FONTSIZE', (0, 0), (-1, -1), 10)]))
     elements.append(Spacer(2, 0.2 * cm))  # Добавляем небольшой отступ
-
+    
     # Данные таблицы товаров
     data = [["Название товара", "Фото", "Количество", "Цена за единицу", "Общая стоимость"]]
 
