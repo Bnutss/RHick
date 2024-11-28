@@ -17,10 +17,10 @@ mimetypes.add_type('image/webp', '.webp')
 
 TELEGRAM_BOT_TOKEN = '7775474735:AAFHyJw-YL1e91AIVj-KIrWxg8Ps6GprXhs'
 
-# TELEGRAM_CHAT_ID = '-1002411014709'
+TELEGRAM_CHAT_ID = '-1002411014709'
 
 
-TELEGRAM_CHAT_ID = '-4535617387'
+# TELEGRAM_CHAT_ID = '-4535617387'
 
 
 def convert_webp_to_png(photo_path):
