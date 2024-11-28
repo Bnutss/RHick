@@ -16,10 +16,11 @@ from reportlab.platypus import SimpleDocTemplate, Table, Spacer, TableStyle, Ima
 mimetypes.add_type('image/webp', '.webp')
 
 TELEGRAM_BOT_TOKEN = '7775474735:AAFHyJw-YL1e91AIVj-KIrWxg8Ps6GprXhs'
-TELEGRAM_CHAT_ID = '-1002411014709'
+
+# TELEGRAM_CHAT_ID = '-1002411014709'
 
 
-# TELEGRAM_CHAT_ID = '-4535617387'
+TELEGRAM_CHAT_ID = '-4535617387'
 
 
 def convert_webp_to_png(photo_path):
@@ -37,7 +38,13 @@ def generate_order_excel(order):
     ws.title = "Order"
 
     # Заголовки
-    headers = ["Название клиента:", order.client, "Использованный НДС:", f"{order.vat}%"]
+    headers = [
+        "Название клиента:", order.client,
+        "Использованный НДС:", f"{order.vat}%",
+        "Прочие расходы (%):", f"{order.additional_expenses}%"
+    ]
+
+    # Вывод заголовков в Excel
     for col in range(0, len(headers), 2):
         cell = ws.cell(row=1 + col // 2, column=1, value=headers[col])
         cell.font = Font(bold=True)
@@ -86,10 +93,13 @@ def generate_order_excel(order):
         ws.row_dimensions[row_num].height = 30  # Устанавливаем высоту строки для соответствия изображения
         row_num += 1
 
-    # Итого
+    # Расчет итогов
     total_price = order.get_total_price()
     total_price_with_vat = order.get_total_price_with_vat()
+    additional_expenses_amount = order.get_additional_expenses_amount()
+    total_sum = total_price_with_vat + additional_expenses_amount  # Общий итог с прочими расходами
 
+    # Вывод данных в Excel
     ws.cell(row=row_num, column=4, value="Итого без НДС:").font = Font(bold=True)
     ws.cell(row=row_num, column=4).alignment = Alignment(horizontal='center', vertical='center')
     ws.cell(row=row_num, column=5, value=total_price).font = Font(bold=True)
@@ -99,6 +109,16 @@ def generate_order_excel(order):
     ws.cell(row=row_num + 1, column=4).alignment = Alignment(horizontal='center', vertical='center')
     ws.cell(row=row_num + 1, column=5, value=total_price_with_vat).font = Font(bold=True)
     ws.cell(row=row_num + 1, column=5).alignment = Alignment(horizontal='center', vertical='center')
+
+    ws.cell(row=row_num + 2, column=4, value="Прочие расходы:").font = Font(bold=True)
+    ws.cell(row=row_num + 2, column=4).alignment = Alignment(horizontal='center', vertical='center')
+    ws.cell(row=row_num + 2, column=5, value=additional_expenses_amount).font = Font(bold=True)
+    ws.cell(row=row_num + 2, column=5).alignment = Alignment(horizontal='center', vertical='center')
+
+    ws.cell(row=row_num + 3, column=4, value="Общий итог:").font = Font(bold=True)
+    ws.cell(row=row_num + 3, column=4).alignment = Alignment(horizontal='center', vertical='center')
+    ws.cell(row=row_num + 3, column=5, value=total_sum).font = Font(bold=True)
+    ws.cell(row=row_num + 3, column=5).alignment = Alignment(horizontal='center', vertical='center')
 
     # Настройка ширины колонок
     ws.column_dimensions['A'].width = 30
@@ -156,8 +176,10 @@ def generate_order_pdf(order):
     elements.append(Spacer(1, 0.2 * cm))  # Небольшой отступ после логотипа
 
     # Таблица с клиентом и НДС
-    elements.append(Table([[f"Клиент: {order.client}"], [f"НДС: {order.vat}%"]], colWidths=[20 * cm],
-                          style=[('FONTNAME', (0, 0), (-1, -1), 'Roboto'), ('FONTSIZE', (0, 0), (-1, -1), 10)]))
+    elements.append(
+        Table([[f"Клиент: {order.client}"], [f"НДС: {order.vat}%"], [f"Прочие расходы: {order.additional_expenses}%"]],
+              colWidths=[20 * cm],
+              style=[('FONTNAME', (0, 0), (-1, -1), 'Roboto'), ('FONTSIZE', (0, 0), (-1, -1), 10)]))
     elements.append(Spacer(2, 0.2 * cm))  # Добавляем небольшой отступ
 
     # Данные таблицы товаров
@@ -193,14 +215,20 @@ def generate_order_pdf(order):
     elements.append(table)
     elements.append(Spacer(1, 0.5 * cm))  # Добавляем отступ
 
-    # Расчет итогов
+    # Расчёт итогов
     total_price = order.get_total_price()
     total_price_with_vat = order.get_total_price_with_vat()
+    additional_expenses_amount = order.get_additional_expenses_amount()
+
+    # Расчёт общего итога
+    total_sum = total_price_with_vat + additional_expenses_amount
 
     # Данные итогов
     totals_data = [
         ["Итого без НДС", f"{total_price:.2f}"],
-        ["Итого с НДС", f"{total_price_with_vat:.2f}"]
+        ["Итого с НДС", f"{total_price_with_vat:.2f}"],
+        ["Прочие расходы", f"{additional_expenses_amount:.2f}"],
+        ["Общий итог", f"{total_sum:.2f}"]
     ]
 
     # Создание таблицы с итогами

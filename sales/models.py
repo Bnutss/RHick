@@ -29,13 +29,20 @@ class Order(models.Model):
 
     def get_total_price_with_vat(self):
         """
-        Вычисляем общую стоимость заказа с учетом НДС и прочих расходов.
+        Вычисляем общую стоимость заказа только с учетом НДС.
         """
         total_price = self.get_total_price()
         vat_multiplier = 1 + (self.vat / 100 if self.vat else 0)  # Учет НДС
-        additional_expenses_multiplier = 1 + (
-            self.additional_expenses / 100 if self.additional_expenses else 0)  # Учет прочих расходов
-        return total_price * vat_multiplier * additional_expenses_multiplier
+        return total_price * vat_multiplier
+
+    def get_additional_expenses_amount(self):
+        """
+        Вычисляем сумму прочих расходов в абсолютном значении на основе общей стоимости заказа без НДС.
+        """
+        total_price = self.get_total_price()
+        if self.additional_expenses:
+            return total_price * (self.additional_expenses / 100)
+        return 0
 
     def save(self, *args, **kwargs):
         if self.is_confirmed and self.confirmed_at is None:
