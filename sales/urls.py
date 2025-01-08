@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (OrderListCreateAPIView, OrderDetailAPIView, OrderProductsAPIView, OrderConfirmAPIView,
-                    OrderRejectAPIView, export_order_to_telegram, ConfirmedOrdersView)
+                    OrderRejectAPIView, export_order_to_telegram, ConfirmedOrdersView, PasswordAPIView)
 
 app_name = 'sales'
 
@@ -16,5 +16,7 @@ urlpatterns = [
     path('api/orders/<int:pk>/reject/', OrderRejectAPIView.as_view(), name='order-reject'),
     path('api/orders/<int:order_id>/export_to_telegram/', export_order_to_telegram, name='export_to_telegram'),
     path('api/confirmed-orders/', ConfirmedOrdersView.as_view(), name='confirmed-orders'),
+    path('api/passwords/', PasswordAPIView.as_view()),
+    path('api/passwords/<int:pk>/', PasswordAPIView.as_view()),
 
 ]

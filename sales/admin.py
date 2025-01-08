@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Order, OrderProduct
+from .models import Order, OrderProduct, Password
 
 
 @admin.register(Order)
@@ -16,3 +16,9 @@ class OrderProductAdmin(admin.ModelAdmin):
     list_filter = ['order', ]
     search_fields = ['order', 'name']
     autocomplete_fields = ['order']
+
+
+@admin.register(Password)
+class PasswordAdmin(admin.ModelAdmin):
+    list_display = ('organization_name', 'nvr_password', 'camera_password', 'created_at')
+    search_fields = ('organization_name',)

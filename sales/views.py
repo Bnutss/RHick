@@ -1,7 +1,7 @@
 from rest_framework import status
 from rest_framework.permissions import AllowAny
-from .models import Order, OrderProduct
-from .serializers import OrderSerializer, OrderProductSerializer, OrderDetailSerializer
+from .models import Order, OrderProduct, Password
+from .serializers import OrderSerializer, OrderProductSerializer, OrderDetailSerializer, PasswordSerializer
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -207,3 +207,47 @@ class ConfirmedOrdersView(APIView):
             "orders": serializer.data,
             "total_sum": total_sum
         }, status=status.HTTP_200_OK)
+
+
+class PasswordAPIView(APIView):
+    # Получение всех записей
+    def get(self, request, pk=None):
+        if pk:
+            try:
+                password = Password.objects.get(pk=pk)
+                serializer = PasswordSerializer(password)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            except Password.DoesNotExist:
+                return Response({"error": "Запись не найдена"}, status=status.HTTP_404_NOT_FOUND)
+        passwords = Password.objects.all()
+        serializer = PasswordSerializer(passwords, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    # Создание новой записи
+    def post(self, request):
+        serializer = PasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # Обновление записи
+    def put(self, request, pk):
+        try:
+            password = Password.objects.get(pk=pk)
+        except Password.DoesNotExist:
+            return Response({"error": "Запись не найдена"}, status=status.HTTP_404_NOT_FOUND)
+        serializer = PasswordSerializer(password, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # Удаление записи
+    def delete(self, request, pk):
+        try:
+            password = Password.objects.get(pk=pk)
+            password.delete()
+            return Response({"message": "Запись успешно удалена"}, status=status.HTTP_204_NO_CONTENT)
+        except Password.DoesNotExist:
+            return Response({"error": "Запись не найдена"}, status=status.HTTP_404_NOT_FOUND)

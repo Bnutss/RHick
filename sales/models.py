@@ -80,3 +80,18 @@ class OrderProduct(models.Model):
                 old_photo.delete(save=False)
 
         super().save(*args, **kwargs)
+
+
+class Password(models.Model):
+    organization_name = models.CharField(max_length=255, verbose_name="Название организации")
+    nvr_password = models.CharField(max_length=255, verbose_name="Пароль от NVR")
+    camera_password = models.CharField(max_length=255, verbose_name="Пароль от камеры")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
+
+    def __str__(self):
+        return self.organization_name
+
+    class Meta:
+        verbose_name = "Пароль"
+        verbose_name_plural = "Пароли"

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Order, OrderProduct
+from .models import Order, OrderProduct, Password
 from datetime import timedelta
 from django.utils import timezone
 from decimal import Decimal
@@ -106,3 +106,9 @@ class OrderDetailSerializer(serializers.ModelSerializer):
         additional_expenses_amount = self.get_additional_expenses_amount(obj)
         total_price_with_vat = self.get_total_price_with_vat(obj)
         return total_price_with_vat + additional_expenses_amount
+
+
+class PasswordSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Password
+        fields = '__all__'
