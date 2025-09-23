@@ -7,7 +7,11 @@ SECRET_KEY = 'django-insecure-cvb*(1(m$b4f_#9si!pb@1gy)(0ub&+4y=x5g_wjoj%#20#iqi
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.11.14', ]
+=======
+ALLOWED_HOSTS = ['*']
+
+# Application definition
+>>>>>>> Stashed changes
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -86,11 +90,11 @@ USE_I18N = True
 
 USE_TZ = True
 
-STATIC_URL = 'static/'
-STATIC_ROOT = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = '/home/rhik/RHick/static'
 
 MEDIA_URL = 'media/'
-MEDIA_ROOT = 'media/'
+MEDIA_ROOT = '/home/rhik/RHick/media'
 
 LOGIN_URL = 'users:login'
 
