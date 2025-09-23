@@ -43,7 +43,7 @@ class ProductHandler(AuthHandler):
         for i, product in enumerate(order.products.all(), 1):
             photo_emoji = "📷" if product.photo else "🚫"
             message += f"**{i}.** {product.name}\n"
-            message += f"   📊 x{product.quantity} - {product.price:,.0f} сум {photo_emoji}\n"
+            message += f"   📊 x{product.quantity} - ${product.price:.2f} {photo_emoji}\n"
             keyboard.append([InlineKeyboardButton(f"🗑️ Удалить {product.name}",
                                                   callback_data=f"delete_product_{product.id}_{order_id}")])
 
@@ -74,7 +74,8 @@ class ProductHandler(AuthHandler):
 
                 context.user_data['product_quantity'] = quantity
                 context.user_data['product_step'] = 'price'
-                await update.message.reply_text("📝 **Шаг 3/4:** Введите цену за единицу\n💡 Например: 150000")
+                await update.message.reply_text(
+                    "📝 **Шаг 3/4:** Введите цену за единицу в долларах\n💡 Например: 150.50")
             except ValueError:
                 await update.message.reply_text("❌ Введите корректное число для количества")
 
@@ -89,7 +90,7 @@ class ProductHandler(AuthHandler):
                 context.user_data['product_step'] = 'photo'
 
                 keyboard = [
-                    [InlineKeyboardButton("⏭️ Пропустить фото", callback_data="skip_photo")]
+                    [InlineKeyboardButton("⭐️ Пропустить фото", callback_data="skip_photo")]
                 ]
                 reply_markup = InlineKeyboardMarkup(keyboard)
 
@@ -97,7 +98,7 @@ class ProductHandler(AuthHandler):
                     f"📝 **Шаг 4/4:** Отправьте фото товара или пропустите\n\n"
                     f"📦 **Товар:** {context.user_data['product_name']}\n"
                     f"📊 **Количество:** {context.user_data['product_quantity']}\n"
-                    f"💰 **Цена:** {price:,.0f} сум\n\n"
+                    f"💰 **Цена:** ${price:.2f}\n\n"
                     f"📷 Отправьте фото или нажмите кнопку ниже",
                     parse_mode='Markdown',
                     reply_markup=reply_markup
@@ -128,9 +129,9 @@ class ProductHandler(AuthHandler):
                 f"✅ **Товар с фото успешно добавлен!**\n\n"
                 f"📦 **Название:** {product.name}\n"
                 f"📊 **Количество:** {product.quantity}\n"
-                f"💰 **Цена:** {product.price:,.0f} сум\n"
+                f"💰 **Цена:** ${product.price:.2f}\n"
                 f"📷 **Фото:** Добавлено\n"
-                f"💎 **Общая стоимость:** {product.quantity * product.price:,.0f} сум",
+                f"💎 **Общая стоимость:** ${product.quantity * product.price:.2f}",
                 parse_mode='Markdown'
             )
         else:
@@ -150,7 +151,7 @@ class ProductHandler(AuthHandler):
             f"✅ **Товар успешно добавлен!**\n\n"
             f"📦 **Название:** {product.name}\n"
             f"📊 **Количество:** {product.quantity}\n"
-            f"💰 **Цена:** {product.price:,.0f} сум\n"
-            f"💎 **Общая стоимость:** {product.quantity * product.price:,.0f} сум",
+            f"💰 **Цена:** ${product.price:.2f}\n"
+            f"💎 **Общая стоимость:** ${product.quantity * product.price:.2f}",
             parse_mode='Markdown'
         )

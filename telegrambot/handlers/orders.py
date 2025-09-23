@@ -70,14 +70,14 @@ class OrderHandler(AuthHandler):
             message += f"🆔 **Заказ #{order.id}**\n"
             message += f"👤 Клиент: {order.client}\n"
             message += f"📦 Товаров: {products_count}\n"
-            message += f"💰 Сумма: {total:,.0f} сум\n"
+            message += f"💰 Сумма: ${total:.2f}\n"
             message += f"{status_emoji} Статус: {status_text}\n"
             message += f"📅 Создан: {order.created_at.strftime('%d.%m.%Y %H:%M')}\n"
             if order.confirmed_at:
                 message += f"✅ Подтвержден: {order.confirmed_at.strftime('%d.%m.%Y %H:%M')}\n"
             message += "─────────────\n"
 
-            keyboard.append([InlineKeyboardButton(f"📝 Заказ #{order.id}", callback_data=f"order_{order.id}")])
+            keyboard.append([InlineKeyboardButton(f"🔍 Заказ #{order.id}", callback_data=f"order_{order.id}")])
 
         reply_markup = InlineKeyboardMarkup(keyboard)
 
@@ -109,8 +109,8 @@ class OrderHandler(AuthHandler):
                 photo_emoji = "📷" if product.photo else "🚫"
                 message += f"**{i}.** {product.name}\n"
                 message += f"   📊 Количество: {product.quantity}\n"
-                message += f"   💵 Цена: {product.price:,.0f} сум\n"
-                message += f"   💰 Сумма: {total_product_price:,.0f} сум\n"
+                message += f"   💵 Цена: ${product.price:.2f}\n"
+                message += f"   💰 Сумма: ${total_product_price:.2f}\n"
                 message += f"   {photo_emoji} Фото: {'Есть' if product.photo else 'Нет'}\n\n"
         else:
             message += "📦 **Товаров пока нет**\n\n"
@@ -121,10 +121,10 @@ class OrderHandler(AuthHandler):
         final_total = total_with_vat + additional_expenses
 
         message += f"💰 **Итого:**\n"
-        message += f"💵 Без НДС: {total_without_vat:,.0f} сум\n"
-        message += f"🏷️ С НДС: {total_with_vat:,.0f} сум\n"
-        message += f"💼 Доп. расходы: {additional_expenses:,.0f} сум\n"
-        message += f"💎 **Итого к оплате: {final_total:,.0f} сум**"
+        message += f"💵 Без НДС: ${total_without_vat:.2f}\n"
+        message += f"🏷️ С НДС: ${total_with_vat:.2f}\n"
+        message += f"💼 Доп. расходы: ${additional_expenses:.2f}\n"
+        message += f"💎 **Итого к оплате: ${final_total:.2f}**"
 
         keyboard = [
             [InlineKeyboardButton("➕ Добавить товар", callback_data=f"add_product_{order_id}")],
