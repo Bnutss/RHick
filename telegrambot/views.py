@@ -1,20 +1,137 @@
 import json
 import logging
-import asyncio
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.conf import settings
-from telegram import Update, ReplyKeyboardMarkup, KeyboardButton
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackQueryHandler
+from telegram import Update
+from telegram.ext import Application
+import asyncio
 
 logger = logging.getLogger(__name__)
 
 
-async def start_command(update, context):
-    from .handlers.orders import OrderHandler
-    order_handler = OrderHandler()
+@csrf_exempt
+@require_POST
+def telegram_webhook(request):
+    try:
+        json_str = request.body.decode('UTF-8')
+        update_data = json.loads(json_str)
 
+        # Создаем Update объект
+        update = Update.de_json(update_data, None)
+
+        # Обрабатываем update асинхронно
+        asyncio.create_task(process_telegram_update(update))
+
+        return HttpResponse("OK")
+    except Exception as e:
+        logger.error(f"Webhook error: {e}")
+        return HttpResponse("OK")  # Всегда возвращаем OK для Telegram
+
+
+async def process_telegram_update(update):
+    """Асинхронная обработка обновлений от Telegram"""
+    try:
+        from .handlers.orders import OrderHandler
+        from .handlers.passwords import PasswordHandler
+        from .handlers.products import ProductHandler
+        from .handlers.callbacks import CallbackHandler
+
+        # Создаем handlers
+        order_handler = OrderHandler()
+        password_handler = PasswordHandler()
+        product_handler = ProductHandler()
+        callback_handler = CallbackHandler()
+
+        # Создаем временный контекст
+        class Context:
+            def __init__(self):
+                self.user_data = {}
+                self.bot = None
+
+        context = Context()
+
+        # Обрабатываем разные типы обновлений
+        if update.message:
+            if update.message.text:
+                if update.message.text.startswith('/'):
+                    await handle_command(update, context)
+                else:
+                    await handle_text_message(update, context)
+            elif update.message.photo:
+                await product_handler.handle_photo(update, context)
+
+        elif update.callback_query:
+            await callback_handler.handle_callback(update, context)
+
+    except Exception as e:
+        logger.error(f"Error processing update: {e}")
+
+
+async def handle_command(update, context):
+    """Обработка команд"""
+    from .handlers.orders import OrderHandler
+    from .handlers.passwords import PasswordHandler
+
+    command = update.message.text
+    order_handler = OrderHandler()
+    password_handler = PasswordHandler()
+
+    if command == '/start':
+        await start_command(update, context)
+    elif command == '/orders':
+        await order_handler.show_orders(update, context)
+    elif command == '/passwords':
+        await password_handler.show_passwords(update, context)
+    elif command == '/create_order':
+        await create_order(update, context)
+    elif command == '/add_password':
+        await add_password(update, context)
+
+
+async def handle_text_message(update, context):
+    """Обработка текстовых сообщений"""
+    from .handlers.orders import OrderHandler
+    from .handlers.passwords import PasswordHandler
+    from .handlers.products import ProductHandler
+
+    text = update.message.text
+    order_handler = OrderHandler()
+    password_handler = PasswordHandler()
+    product_handler = ProductHandler()
+
+    if not await order_handler.is_authorized_user(update):
+        return
+
+    if text == "📋 Заказы":
+        await order_handler.show_orders(update, context)
+    elif text == "🔑 Пароли":
+        await password_handler.show_passwords(update, context)
+    elif text == "➕ Создать заказ":
+        await create_order(update, context)
+    elif text == "🔐 Добавить пароль":
+        await add_password(update, context)
+    elif text == "📊 Статистика":
+        await show_statistics(update, context)
+    elif text == "❌ Отмена":
+        context.user_data.clear()
+        await update.message.reply_text("❌ **Операция отменена**", parse_mode='Markdown')
+    elif context.user_data.get('creating_order'):
+        await order_handler.handle_order_creation(update, context)
+    elif context.user_data.get('adding_password'):
+        await password_handler.handle_password_creation(update, context)
+    elif context.user_data.get('adding_product'):
+        await product_handler.handle_product_creation(update, context)
+    elif context.user_data.get('editing_order'):
+        await order_handler.handle_order_editing(update, context)
+
+
+async def start_command(update, context):
+    from telegram import ReplyKeyboardMarkup, KeyboardButton
+    from .handlers.orders import OrderHandler
+
+    order_handler = OrderHandler()
     if not await order_handler.is_authorized_user(update):
         return
 
@@ -77,52 +194,6 @@ async def add_password(update, context):
     )
 
 
-async def handle_message(update, context):
-    from .handlers.orders import OrderHandler
-    from .handlers.passwords import PasswordHandler
-    from .handlers.products import ProductHandler
-
-    order_handler = OrderHandler()
-    password_handler = PasswordHandler()
-    product_handler = ProductHandler()
-
-    if not await order_handler.is_authorized_user(update):
-        return
-
-    text = update.message.text
-
-    if text == "📋 Заказы":
-        await order_handler.show_orders(update, context)
-    elif text == "🔑 Пароли":
-        await password_handler.show_passwords(update, context)
-    elif text == "➕ Создать заказ":
-        await create_order(update, context)
-    elif text == "🔐 Добавить пароль":
-        await add_password(update, context)
-    elif text == "📊 Статистика":
-        await show_statistics(update, context)
-    elif text == "❌ Отмена":
-        context.user_data.clear()
-        await update.message.reply_text("❌ **Операция отменена**", parse_mode='Markdown')
-    elif context.user_data.get('creating_order'):
-        await order_handler.handle_order_creation(update, context)
-    elif context.user_data.get('adding_password'):
-        await password_handler.handle_password_creation(update, context)
-    elif context.user_data.get('adding_product'):
-        await product_handler.handle_product_creation(update, context)
-    elif context.user_data.get('editing_order'):
-        await order_handler.handle_order_editing(update, context)
-    else:
-        await update.message.reply_text(
-            "❓ **Команда не распознана**\n\n"
-            "🎯 **Используйте кнопки меню или команды:**\n"
-            "🏠 /start - главное меню\n"
-            "📋 /orders - список заказов\n"
-            "🔑 /passwords - список паролей",
-            parse_mode='Markdown'
-        )
-
-
 async def show_statistics(update, context):
     from .handlers.orders import OrderHandler
     order_handler = OrderHandler()
@@ -140,55 +211,3 @@ async def show_statistics(update, context):
         f"🔑 **Пароли:** **{stats['passwords_count']}**",
         parse_mode='Markdown'
     )
-
-
-async def handle_photo(update, context):
-    from .handlers.products import ProductHandler
-    product_handler = ProductHandler()
-    await product_handler.handle_photo(update, context)
-
-
-async def handle_callback(update, context):
-    from .handlers.callbacks import CallbackHandler
-    callback_handler = CallbackHandler()
-    await callback_handler.handle_callback(update, context)
-
-
-@csrf_exempt
-@require_POST
-def telegram_webhook(request):
-    try:
-        json_str = request.body.decode('UTF-8')
-        update = Update.de_json(json.loads(json_str), None)
-
-        application = Application.builder().token(settings.TELEGRAM_BOT_TOKEN).build()
-
-        application.add_handler(CommandHandler("start", start_command))
-        application.add_handler(
-            CommandHandler("orders", lambda u, c: asyncio.create_task(order_handler_show_orders(u, c))))
-        application.add_handler(
-            CommandHandler("passwords", lambda u, c: asyncio.create_task(password_handler_show_passwords(u, c))))
-        application.add_handler(CommandHandler("create_order", create_order))
-        application.add_handler(CommandHandler("add_password", add_password))
-        application.add_handler(CallbackQueryHandler(handle_callback))
-        application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-        application.add_handler(MessageHandler(filters.PHOTO, handle_photo))
-
-        asyncio.create_task(application.process_update(update))
-
-        return HttpResponse("OK")
-    except Exception as e:
-        logger.error(f"Webhook error: {e}")
-        return HttpResponseBadRequest("Bad Request")
-
-
-async def order_handler_show_orders(update, context):
-    from .handlers.orders import OrderHandler
-    order_handler = OrderHandler()
-    await order_handler.show_orders(update, context)
-
-
-async def password_handler_show_passwords(update, context):
-    from .handlers.passwords import PasswordHandler
-    password_handler = PasswordHandler()
-    await password_handler.show_passwords(update, context)
