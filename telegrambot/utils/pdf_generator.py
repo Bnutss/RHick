@@ -1,7 +1,6 @@
 from django.template.loader import render_to_string
 from weasyprint import HTML, CSS
 from io import BytesIO
-from django.conf import settings
 import base64
 import os
 
@@ -63,12 +62,12 @@ class PDFGenerator:
 
         html_string = render_to_string('telegram/order_pdf.html', context)
 
-        css = CSS(string='''
-            @page { 
-                size: A4 portrait; 
-                margin: 8mm;
-            }
-        ''')
+        # В 53.4 используем base_url для загрузки статических файлов
+        pdf = HTML(
+            string=html_string,
+            base_url=os.getcwd()
+        ).write_pdf(
+            stylesheets=[CSS(string='@page { size: A4; margin: 8mm; }')]
+        )
 
-        pdf = HTML(string=html_string).write_pdf(stylesheets=[css])
         return BytesIO(pdf)
