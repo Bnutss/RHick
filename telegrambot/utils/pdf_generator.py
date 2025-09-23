@@ -26,7 +26,7 @@ class PDFGenerator:
                     elif file_extension == '.gif':
                         mime_type = 'image/gif'
                     else:
-                        mime_type = 'image/jpeg'
+                        mime_type = 'application/octet-stream'
 
                     return f"data:{mime_type};base64,{encoded_string}"
         except Exception as e:
@@ -62,12 +62,12 @@ class PDFGenerator:
 
         html_string = render_to_string('telegram/order_pdf.html', context)
 
-        # В 53.4 используем base_url для загрузки статических файлов
-        pdf = HTML(
+        # base_url нужен в 53.4 для корректной подгрузки css и статики
+        pdf_bytes = HTML(
             string=html_string,
             base_url=os.getcwd()
         ).write_pdf(
             stylesheets=[CSS(string='@page { size: A4; margin: 8mm; }')]
         )
 
-        return BytesIO(pdf)
+        return BytesIO(pdf_bytes)
