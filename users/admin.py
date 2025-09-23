@@ -14,5 +14,6 @@ class CustomUserAdmin(UserAdmin):
     inlines = (UserProfileInline,)
 
 
+admin.site.site_header = 'Администрирование RHick'
 admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)

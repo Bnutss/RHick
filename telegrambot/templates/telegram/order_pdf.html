@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Заказ #{{ order.id }}</title>
+    <style>
+        @page {
+            size: A4 portrait;
+            margin: 8mm;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 7px;
+            margin: 0;
+            padding: 0;
+            line-height: 1.1;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #000;
+            padding-bottom: 5px;
+        }
+
+        .header-left {
+            font-size: 8px;
+        }
+
+        .logo {
+            width: 45px;
+            height: 45px;
+            background: #000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 10px;
+        }
+
+        .order-info {
+            margin-bottom: 8px;
+            font-size: 7px;
+        }
+
+        .order-info div {
+            margin-bottom: 2px;
+        }
+
+        .products-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 8px;
+        }
+
+        .products-table th {
+            background-color: #808080;
+            color: white;
+            padding: 4px 2px;
+            text-align: center;
+            font-weight: bold;
+            border: 1px solid #000;
+            font-size: 6px;
+        }
+
+        .products-table td {
+            padding: 3px 2px;
+            border: 1px solid #000;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 6px;
+        }
+
+        .products-table tr:nth-child(even) {
+            background-color: #f5f5dc;
+        }
+
+        .products-table tr:nth-child(odd) {
+            background-color: white;
+        }
+
+        .product-name {
+            text-align: left !important;
+            padding-left: 4px !important;
+            max-width: 120px;
+            word-wrap: break-word;
+        }
+
+        .product-image {
+            width: 25px;
+            height: 25px;
+            object-fit: cover;
+            border: 1px solid #ccc;
+        }
+
+        .no-image {
+            width: 25px;
+            height: 25px;
+            background: #f0f0f0;
+            border: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            font-size: 5px;
+            color: #666;
+        }
+
+        .totals-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 5px;
+            font-size: 7px;
+        }
+
+        .totals-table td {
+            padding: 3px 6px;
+            border: 1px solid #000;
+            background-color: #f0f0f0;
+        }
+
+        .totals-table td:first-child {
+            font-weight: bold;
+            width: 140px;
+        }
+
+        .totals-table td:last-child {
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .final-total {
+            background-color: #d0d0d0 !important;
+            font-weight: bold;
+        }
+
+        .status-section {
+            margin-bottom: 5px;
+            font-size: 7px;
+        }
+
+        .status-badge {
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+            font-size: 6px;
+        }
+
+        .status-confirmed {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-rejected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <div class="header-left">
+        <div style="font-weight: bold; font-size: 10px;">Заказ #{{ order.id }}</div>
+        <div>{{ order.created_at|date:"d.m.Y H:i" }}</div>
+    </div>
+    <div class="logo">
+        RHIK
+    </div>
+</div>
+
+<div class="order-info">
+    <div><strong>Клиент:</strong> {{ order.client }}</div>
+    <div><strong>НДС:</strong> {% if order.vat %}{{ order.vat }}%{% else %}0%{% endif %}</div>
+    <div><strong>Прочие расходы:</strong>
+        {% if order.additional_expenses %}{{ order.additional_expenses }}%{% else %}0%{% endif %}</div>
+</div>
+
+<div class="status-section">
+    <strong>Статус:</strong>
+    <span class="status-badge {% if order.is_confirmed %}status-confirmed{% elif order.is_rejected %}status-rejected{% else %}status-pending{% endif %}">
+            {% if order.is_confirmed %}Подтвержден{% elif order.is_rejected %}Отклонен{% else %}В ожидании{% endif %}
+        </span>
+</div>
+
+<table class="products-table">
+    <thead>
+    <tr>
+        <th style="width: 35%;">Название товара</th>
+        <th style="width: 12%;">Фото</th>
+        <th style="width: 8%;">Кол-во</th>
+        <th style="width: 20%;">Цена за ед.</th>
+        <th style="width: 25%;">Общая стоимость</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for product in products %}
+        <tr>
+            <td class="product-name">{{ product.name }}</td>
+            <td>
+                {% if product.photo_base64 %}
+                    <img src="{{ product.photo_base64 }}" alt="{{ product.name }}" class="product-image">
+                {% else %}
+                    <div class="no-image">
+                        Нет
+                    </div>
+                {% endif %}
+            </td>
+            <td>{{ product.quantity }}</td>
+            <td>{{ product.price|floatformat:2 }}</td>
+            <td>{{ product.total_price|floatformat:2 }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<table class="totals-table">
+    <tr>
+        <td>Итого без НДС</td>
+        <td>{{ total_without_vat|floatformat:2 }}</td>
+    </tr>
+    <tr>
+        <td>Итого с НДС</td>
+        <td>{{ total_with_vat|floatformat:2 }}</td>
+    </tr>
+    <tr>
+        <td>Прочие расходы</td>
+        <td>{{ additional_expenses|floatformat:2 }}</td>
+    </tr>
+    <tr class="final-total">
+        <td>Общий итог</td>
+        <td>{{ final_total|floatformat:2 }}</td>
+    </tr>
+</table>
+</body>
+</html>
