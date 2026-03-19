@@ -171,7 +171,9 @@ def generate_order_pdf(order):
     total_without_vat = order.get_total_price()
     total_with_vat = order.get_total_price_with_vat()
     additional_expenses_amount = order.get_additional_expenses_amount()
-    final_total = total_with_vat + additional_expenses_amount
+    grand_total = total_with_vat + additional_expenses_amount
+    advance = order.advance or 0
+    final_total = grand_total - advance
 
     if order.is_confirmed:
         status_class, status_text = 'status-confirmed', 'Подтвержден'
@@ -186,12 +188,21 @@ def generate_order_pdf(order):
     with open(TEMPLATE_PATH, 'r', encoding='utf-8') as f:
         template = f.read()
 
-    advance_row = (
-        f'<div class="totals-row advance-row">'
-        f'<span class="t-label">Аванс</span>'
-        f'<span class="t-value">{order.advance:.2f}</span>'
-        f'</div>'
-    ) if order.advance else ''
+    if order.advance:
+        advance_row = (
+            f'<div class="totals-row">'
+            f'<span class="t-label">Итого к оплате</span>'
+            f'<span class="t-value">{grand_total:.2f}</span>'
+            f'</div>'
+            f'<div class="totals-row advance-row">'
+            f'<span class="t-label">Аванс (оплачено)</span>'
+            f'<span class="t-value">− {order.advance:.2f}</span>'
+            f'</div>'
+        )
+        final_label = 'Остаток к оплате'
+    else:
+        advance_row = ''
+        final_label = 'Итого к оплате'
 
     logo_base64 = get_logo_base64()
     logo_html = (
@@ -214,6 +225,7 @@ def generate_order_pdf(order):
             .replace('{{ total_with_vat }}', f'{total_with_vat:.2f}')
             .replace('{{ additional_expenses_amount }}', f'{additional_expenses_amount:.2f}')
             .replace('{{ advance_row }}', advance_row)
+            .replace('{{ final_label }}', final_label)
             .replace('{{ final_total }}', f'{final_total:.2f}')
             .replace('{{ logo_img }}', logo_html)
             )

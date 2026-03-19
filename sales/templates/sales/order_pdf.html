@@ -407,12 +407,19 @@
             color: #1a1a1a;
         }
 
+        .totals-row.advance-row {
+            background: #f0faf4;
+            border-left: 3px solid #1a7a3e;
+        }
+
         .totals-row.advance-row .t-label {
-            color: #555;
+            color: #1a7a3e;
+            font-weight: bold;
         }
 
         .totals-row.advance-row .t-value {
             color: #1a7a3e;
+            font-weight: bold;
         }
 
         .totals-row.final-row {
@@ -619,7 +626,7 @@
         </div>
         {{ advance_row }}
         <div class="totals-row final-row">
-            <span class="t-label">Итого к оплате</span>
+            <span class="t-label">{{ final_label }}</span>
             <span class="t-value">{{ final_total }}</span>
         </div>
     </div>
