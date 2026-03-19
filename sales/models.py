@@ -7,6 +7,7 @@ class Order(models.Model):
     vat = models.DecimalField(max_digits=5, decimal_places=2, verbose_name='НДС (%)', blank=True, null=True)
     additional_expenses = models.DecimalField(max_digits=5, decimal_places=2, verbose_name='Прочие расходы (%)',
                                               blank=True, null=True)
+    advance = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Аванс', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
     is_confirmed = models.BooleanField(default=False, verbose_name="Подтвержденный заказ")
     is_rejected = models.BooleanField(default=False, verbose_name="Отклоненный заказ")

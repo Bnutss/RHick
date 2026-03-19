@@ -17,11 +17,12 @@ class OrderHandler(AuthHandler):
             return None
 
     @sync_to_async
-    def create_order_sync(self, client, vat, expenses):
+    def create_order_sync(self, client, vat, expenses, advance=None):
         return Order.objects.create(
             client=client,
             vat=vat,
-            additional_expenses=expenses
+            additional_expenses=expenses,
+            advance=advance
         )
 
     @sync_to_async
@@ -153,7 +154,7 @@ class OrderHandler(AuthHandler):
             context.user_data['order_client'] = text
             context.user_data['order_step'] = 'vat'
             await update.message.reply_text(
-                "📝 **Шаг 2/3:** Введите НДС (%) или отправьте 0 если НДС нет\n"
+                "📝 **Шаг 2/4:** Введите НДС (%) или отправьте 0 если НДС нет\n"
                 "💡 Пример: 12 или 0",
                 parse_mode='Markdown'
             )
@@ -168,7 +169,7 @@ class OrderHandler(AuthHandler):
                 context.user_data['order_vat'] = vat
                 context.user_data['order_step'] = 'expenses'
                 await update.message.reply_text(
-                    "📝 **Шаг 3/3:** Введите прочие расходы (%) или отправьте 0\n"
+                    "📝 **Шаг 3/4:** Введите прочие расходы (%) или отправьте 0\n"
                     "💡 Пример: 5 или 0",
                     parse_mode='Markdown'
                 )
@@ -182,29 +183,49 @@ class OrderHandler(AuthHandler):
                     await update.message.reply_text("❌ Прочие расходы должны быть от 0 до 100%")
                     return
 
+                context.user_data['order_expenses'] = expenses
+                context.user_data['order_step'] = 'advance'
+                await update.message.reply_text(
+                    "📝 **Шаг 4/4:** Введите сумму аванса или отправьте 0 если аванса нет\n"
+                    "💡 Пример: 50000 или 0",
+                    parse_mode='Markdown'
+                )
+            except ValueError:
+                await update.message.reply_text("❌ Введите корректное число для расходов (например: 5 или 0)")
+
+        elif step == 'advance':
+            try:
+                advance = float(text) if text != '0' else None
+                if advance and advance < 0:
+                    await update.message.reply_text("❌ Аванс не может быть отрицательным")
+                    return
+
                 order = await self.create_order_sync(
                     context.user_data['order_client'],
                     context.user_data['order_vat'],
-                    expenses
+                    context.user_data['order_expenses'],
+                    advance
                 )
 
                 context.user_data.clear()
 
                 vat_text = f"{order.vat}%" if order.vat else "Нет"
                 expenses_text = f"{order.additional_expenses}%" if order.additional_expenses else "Нет"
+                advance_text = f"{order.advance}" if order.advance else "Нет"
 
                 await update.message.reply_text(
                     f"✅ **Заказ #{order.id} успешно создан!**\n\n"
                     f"👤 **Клиент:** {order.client}\n"
                     f"🏷️ **НДС:** {vat_text}\n"
                     f"💼 **Прочие расходы:** {expenses_text}\n"
+                    f"💵 **Аванс:** {advance_text}\n"
                     f"📅 **Создан:** {order.created_at.strftime('%d.%m.%Y %H:%M')}\n\n"
                     f"💡 Теперь можно добавить товары через /orders",
                     parse_mode='Markdown'
                 )
 
             except ValueError:
-                await update.message.reply_text("❌ Введите корректное число для расходов (например: 5 или 0)")
+                await update.message.reply_text("❌ Введите корректное число для аванса (например: 50000 или 0)")
 
     async def handle_order_editing(self, update, context):
         text = update.message.text
@@ -244,3 +265,17 @@ class OrderHandler(AuthHandler):
                                                 parse_mode='Markdown')
             except ValueError:
                 await update.message.reply_text("❌ Введите корректное число для расходов")
+
+        elif step == 'advance':
+            try:
+                advance = float(text) if text != '0' else None
+                if advance and advance < 0:
+                    await update.message.reply_text("❌ Аванс не может быть отрицательным")
+                    return
+
+                await self.update_order_sync(order_id, advance=advance)
+                context.user_data.clear()
+                advance_text = f"{advance}" if advance else "убран"
+                await update.message.reply_text(f"✅ Аванс изменен: **{advance_text}**", parse_mode='Markdown')
+            except ValueError:
+                await update.message.reply_text("❌ Введите корректное число для аванса")
