@@ -1,518 +1,534 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<style>
-
-  @page {
-    size: A4 portrait;
-    margin: 0;
-  }
-
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
-
-  body {
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 9px;
-    color: #1a1a1a;
-    background: #ffffff;
-    width: 210mm;
-    min-height: 297mm;
-  }
-
-  /* ══════════════════════════════════
-     TOP RED STRIPE
-  ══════════════════════════════════ */
-  .top-stripe {
-    height: 5px;
-    background: #E2001A;
-    width: 100%;
-  }
-
-  /* ══════════════════════════════════
-     HEADER
-  ══════════════════════════════════ */
-  .header {
-    padding: 9px 18px 8px 18px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #ffffff;
-    border-bottom: 1px solid #ececec;
-  }
-
-  .brand-block {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .logo-box {
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-
-  .logo-img {
-    width: 40px;
-    height: 40px;
-    object-fit: contain;
-    display: block;
-  }
-
-  .brand-text-block {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-  }
-
-  .brand-name {
-    font-size: 14px;
-    font-weight: bold;
-    color: #1a1a1a;
-    letter-spacing: 2px;
-    line-height: 1;
-  }
-
-  .brand-sub {
-    font-size: 6px;
-    color: #aaa;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-  }
-
-  .header-right {
-    text-align: right;
-  }
-
-  .order-label {
-    font-size: 6.5px;
-    color: #aaa;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    margin-bottom: 2px;
-  }
-
-  .order-number {
-    font-size: 18px;
-    font-weight: bold;
-    color: #E2001A;
-    letter-spacing: 0.5px;
-    line-height: 1;
-  }
-
-  .order-date {
-    font-size: 7px;
-    color: #888;
-    margin-top: 3px;
-  }
-
-  /* ══════════════════════════════════
-     HERO BAND — тёмная полоса с данными
-  ══════════════════════════════════ */
-  .hero-band {
-    background: #1a1a1a;
-    padding: 7px 18px;
-    display: flex;
-    gap: 0;
-  }
-
-  .hero-item {
-    flex: 1;
-    padding: 0 14px 0 0;
-    border-right: 1px solid #333;
-  }
-
-  .hero-item:last-child {
-    border-right: none;
-    padding-right: 0;
-    padding-left: 14px;
-  }
-
-  .hero-item:first-child {
-    padding-left: 0;
-    flex: 1.6;
-  }
-
-  .hero-label {
-    font-size: 5.5px;
-    color: #888;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 3px;
-  }
-
-  .hero-value {
-    font-size: 9px;
-    font-weight: bold;
-    color: #ffffff;
-    line-height: 1.2;
-  }
-
-  .status-pill {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 10px;
-    font-size: 6.5px;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .status-confirmed { background: #1e7e34; color: #fff; }
-  .status-rejected  { background: #b21f2d; color: #fff; }
-  .status-pending   { background: #d39e00; color: #fff; }
-
-  /* ══════════════════════════════════
-     CONTENT AREA
-  ══════════════════════════════════ */
-  .content {
-    padding: 8px 18px;
-  }
-
-  /* ── Section heading ── */
-  .section-heading {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    margin-bottom: 5px;
-    margin-top: 0;
-  }
-
-  .section-heading:first-child {
-    margin-top: 0;
-  }
-
-  .section-dot {
-    width: 4px;
-    height: 14px;
-    background: #E2001A;
-    border-radius: 2px;
-    flex-shrink: 0;
-  }
-
-  .section-heading-text {
-    font-size: 7.5px;
-    font-weight: bold;
-    color: #1a1a1a;
-    text-transform: uppercase;
-    letter-spacing: 1.2px;
-  }
-
-  .section-line {
-    flex: 1;
-    height: 1px;
-    background: #ececec;
-  }
-
-  /* ══════════════════════════════════
-     PRODUCTS TABLE
-  ══════════════════════════════════ */
-  .products-table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  .products-table thead tr {
-    background: #1a1a1a;
-  }
-
-  .products-table th {
-    padding: 5px 6px;
-    font-size: 6.5px;
-    font-weight: bold;
-    color: #ffffff;
-    text-transform: uppercase;
-    letter-spacing: 0.6px;
-    text-align: center;
-    white-space: nowrap;
-  }
-
-  .products-table th.th-name {
-    text-align: left;
-    padding-left: 10px;
-  }
-
-  .products-table td {
-    padding: 0;
-    border-bottom: 1px solid #f0f0f0;
-    text-align: center;
-    vertical-align: middle;
-    font-size: 8px;
-  }
-
-  .products-table tbody tr:nth-child(even) {
-    background: #fafafa;
-  }
-
-  .products-table tbody tr:hover {
-    background: #fff5f5;
-  }
-
-  .td-inner {
-    padding: 6px 8px;
-  }
-
-  .products-table td.td-name {
-    text-align: left;
-    padding-left: 10px;
-  }
-
-  .product-name-text {
-    font-size: 8px;
-    font-weight: bold;
-    color: #1a1a1a;
-    line-height: 1.35;
-    text-align: left;
-  }
-
-  .td-num {
-    width: 26px;
-    text-align: center;
-    padding: 0 4px;
-  }
-
-  .row-num {
-    display: inline-block;
-    width: 18px;
-    height: 18px;
-    line-height: 18px;
-    text-align: center;
-    background: #f0f0f0;
-    color: #888;
-    font-size: 7px;
-    font-weight: bold;
-    border-radius: 50%;
-  }
-
-  /* Фото ячейка */
-  .td-photo {
-    width: 54px;
-    padding: 3px 4px;
-  }
-
-  .photo-wrap {
-    width: 46px;
-    height: 46px;
-    margin: 0 auto;
-    border: 1.5px solid #e0e0e0;
-    border-radius: 4px;
-    overflow: hidden;
-    background: #f5f5f5;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .product-image {
-    width: 46px;
-    height: 46px;
-    object-fit: contain;
-    display: block;
-  }
-
-  .no-photo-icon {
-    font-size: 5.5px;
-    color: #ccc;
-    text-align: center;
-    line-height: 1.3;
-  }
-
-  .td-qty {
-    width: 55px;
-    font-weight: bold;
-    color: #333;
-    font-size: 9px;
-  }
-
-  .td-price {
-    width: 80px;
-    color: #444;
-    font-size: 8px;
-  }
-
-  .td-total {
-    width: 85px;
-    font-weight: bold;
-    color: #E2001A;
-    font-size: 9px;
-  }
-
-  /* ══════════════════════════════════
-     TOTALS BLOCK
-  ══════════════════════════════════ */
-  .bottom-section {
-    display: flex;
-    justify-content: flex-end;
-    padding: 0 18px 10px 18px;
-    margin-top: 2px;
-  }
-
-  .totals-card {
-    width: 220px;
-    border: 1px solid #e8e8e8;
-    border-radius: 6px;
-    overflow: hidden;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-  }
-
-  .totals-header {
-    background: #f7f7f7;
-    padding: 5px 12px;
-    font-size: 6px;
-    font-weight: bold;
-    color: #888;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    border-bottom: 1px solid #ececec;
-  }
-
-  .totals-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 4px 10px;
-    border-bottom: 1px solid #f3f3f3;
-    font-size: 7.5px;
-  }
-
-  .totals-row:last-child {
-    border-bottom: none;
-  }
-
-  .t-label {
-    color: #666;
-  }
-
-  .t-value {
-    font-weight: bold;
-    color: #1a1a1a;
-  }
-
-  .totals-row.advance-row .t-label { color: #555; }
-  .totals-row.advance-row .t-value { color: #1a7a3e; }
-
-  .totals-row.final-row {
-    background: #E2001A;
-    padding: 7px 12px;
-  }
-
-  .totals-row.final-row .t-label {
-    color: #fff;
-    font-size: 8.5px;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .totals-row.final-row .t-value {
-    color: #fff;
-    font-size: 11px;
-    font-weight: bold;
-  }
-
-  /* ══════════════════════════════════
-     FOOTER
-  ══════════════════════════════════ */
-  .footer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: #fff;
-    border-top: 1px solid #ececec;
-    padding: 7px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .footer-left {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .footer-avatar {
-    width: 26px;
-    height: 26px;
-    min-width: 26px;
-    min-height: 26px;
-    background: #E2001A;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-
-  .footer-avatar span {
-    color: #fff;
-    font-size: 8px;
-    font-weight: bold;
-  }
-
-  .footer-spec-name {
-    font-size: 8.5px;
-    font-weight: bold;
-    color: #1a1a1a;
-  }
-
-  .footer-spec-role {
-    font-size: 6px;
-    color: #E2001A;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-top: 1px;
-  }
-
-  .footer-center {
-    font-size: 6px;
-    color: #ccc;
-    text-align: center;
-  }
-
-  .footer-right {
-    text-align: right;
-  }
-
-  .f-brand {
-    font-size: 10px;
-    font-weight: bold;
-    color: #1a1a1a;
-    letter-spacing: 2px;
-  }
-
-  .f-sub {
-    font-size: 5.5px;
-    color: #bbb;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    margin-top: 1px;
-  }
-
-  /* ══════════════════════════════════
-     WATERMARK / CORNER ACCENT
-  ══════════════════════════════════ */
-  .corner-accent {
-    position: fixed;
-    top: 0;
-    right: 0;
-    width: 0;
-    height: 0;
-    border-style: solid;
-    border-width: 0 28px 28px 0;
-    border-color: transparent #E2001A transparent transparent;
-  }
-
-</style>
+    <meta charset="UTF-8">
+    <style>
+
+        @page {
+            size: A4 portrait;
+            margin: 0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 9px;
+            color: #1a1a1a;
+            background: #ffffff;
+            width: 210mm;
+            min-height: 297mm;
+        }
+
+        /* ══════════════════════════════════
+           TOP RED STRIPE
+        ══════════════════════════════════ */
+        .top-stripe {
+            height: 5px;
+            background: #E2001A;
+            width: 100%;
+        }
+
+        /* ══════════════════════════════════
+           HEADER
+        ══════════════════════════════════ */
+        .header {
+            padding: 9px 18px 8px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #ffffff;
+            border-bottom: 1px solid #ececec;
+        }
+
+        .brand-block {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-box {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .logo-img {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+            display: block;
+        }
+
+        .brand-text-block {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .brand-name {
+            font-size: 14px;
+            font-weight: bold;
+            color: #1a1a1a;
+            letter-spacing: 2px;
+            line-height: 1;
+        }
+
+        .brand-sub {
+            font-size: 6px;
+            color: #aaa;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .header-right {
+            text-align: right;
+        }
+
+        .order-label {
+            font-size: 6.5px;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 2px;
+        }
+
+        .order-number {
+            font-size: 18px;
+            font-weight: bold;
+            color: #E2001A;
+            letter-spacing: 0.5px;
+            line-height: 1;
+        }
+
+        .order-date {
+            font-size: 7px;
+            color: #888;
+            margin-top: 3px;
+        }
+
+        /* ══════════════════════════════════
+           HERO BAND — тёмная полоса с данными
+        ══════════════════════════════════ */
+        .hero-band {
+            background: #1a1a1a;
+            padding: 7px 18px;
+            display: flex;
+            gap: 0;
+        }
+
+        .hero-item {
+            flex: 1;
+            padding: 0 14px 0 0;
+            border-right: 1px solid #333;
+        }
+
+        .hero-item:last-child {
+            border-right: none;
+            padding-right: 0;
+            padding-left: 14px;
+        }
+
+        .hero-item:first-child {
+            padding-left: 0;
+            flex: 1.6;
+        }
+
+        .hero-label {
+            font-size: 5.5px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 3px;
+        }
+
+        .hero-value {
+            font-size: 9px;
+            font-weight: bold;
+            color: #ffffff;
+            line-height: 1.2;
+        }
+
+        .status-pill {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 6.5px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-confirmed {
+            background: #1e7e34;
+            color: #fff;
+        }
+
+        .status-rejected {
+            background: #b21f2d;
+            color: #fff;
+        }
+
+        .status-pending {
+            background: #d39e00;
+            color: #fff;
+        }
+
+        /* ══════════════════════════════════
+           CONTENT AREA
+        ══════════════════════════════════ */
+        .content {
+            padding: 8px 18px;
+        }
+
+        /* ── Section heading ── */
+        .section-heading {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            margin-bottom: 5px;
+            margin-top: 0;
+        }
+
+        .section-heading:first-child {
+            margin-top: 0;
+        }
+
+        .section-dot {
+            width: 4px;
+            height: 14px;
+            background: #E2001A;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        .section-heading-text {
+            font-size: 7.5px;
+            font-weight: bold;
+            color: #1a1a1a;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+        }
+
+        .section-line {
+            flex: 1;
+            height: 1px;
+            background: #ececec;
+        }
+
+        /* ══════════════════════════════════
+           PRODUCTS TABLE
+        ══════════════════════════════════ */
+        .products-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .products-table thead tr {
+            background: #1a1a1a;
+        }
+
+        .products-table th {
+            padding: 5px 6px;
+            font-size: 6.5px;
+            font-weight: bold;
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .products-table th.th-name {
+            text-align: left;
+            padding-left: 10px;
+        }
+
+        .products-table td {
+            padding: 0;
+            border-bottom: 1px solid #f0f0f0;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 8px;
+        }
+
+        .products-table tbody tr:nth-child(even) {
+            background: #fafafa;
+        }
+
+        .products-table tbody tr:hover {
+            background: #fff5f5;
+        }
+
+        .td-inner {
+            padding: 6px 8px;
+        }
+
+        .products-table td.td-name {
+            text-align: left;
+            padding-left: 10px;
+        }
+
+        .product-name-text {
+            font-size: 8px;
+            font-weight: bold;
+            color: #1a1a1a;
+            line-height: 1.35;
+            text-align: left;
+        }
+
+        .td-num {
+            width: 26px;
+            text-align: center;
+            padding: 0 4px;
+        }
+
+        .row-num {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            line-height: 18px;
+            text-align: center;
+            background: #f0f0f0;
+            color: #888;
+            font-size: 7px;
+            font-weight: bold;
+            border-radius: 50%;
+        }
+
+        /* Фото ячейка */
+        .td-photo {
+            width: 54px;
+            padding: 3px 4px;
+        }
+
+        .photo-wrap {
+            width: 46px;
+            height: 46px;
+            margin: 0 auto;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            background: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .product-image {
+            width: 46px;
+            height: 46px;
+            object-fit: contain;
+            display: block;
+        }
+
+        .no-photo-icon {
+            font-size: 5.5px;
+            color: #ccc;
+            text-align: center;
+            line-height: 1.3;
+        }
+
+        .td-qty {
+            width: 55px;
+            font-weight: bold;
+            color: #333;
+            font-size: 9px;
+        }
+
+        .td-price {
+            width: 80px;
+            color: #444;
+            font-size: 8px;
+        }
+
+        .td-total {
+            width: 85px;
+            font-weight: bold;
+            color: #E2001A;
+            font-size: 9px;
+        }
+
+        /* ══════════════════════════════════
+           TOTALS BLOCK
+        ══════════════════════════════════ */
+        .bottom-section {
+            display: flex;
+            justify-content: flex-end;
+            padding: 0 18px 10px 18px;
+            margin-top: 2px;
+        }
+
+        .totals-card {
+            width: 220px;
+            border: 1px solid #e8e8e8;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+        }
+
+        .totals-header {
+            background: #f7f7f7;
+            padding: 5px 12px;
+            font-size: 6px;
+            font-weight: bold;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #ececec;
+        }
+
+        .totals-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 10px;
+            border-bottom: 1px solid #f3f3f3;
+            font-size: 7.5px;
+        }
+
+        .totals-row:last-child {
+            border-bottom: none;
+        }
+
+        .t-label {
+            color: #666;
+        }
+
+        .t-value {
+            font-weight: bold;
+            color: #1a1a1a;
+        }
+
+        .totals-row.advance-row .t-label {
+            color: #555;
+        }
+
+        .totals-row.advance-row .t-value {
+            color: #1a7a3e;
+        }
+
+        .totals-row.final-row {
+            background: #E2001A;
+            padding: 7px 12px;
+        }
+
+        .totals-row.final-row .t-label {
+            color: #fff;
+            font-size: 8.5px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .totals-row.final-row .t-value {
+            color: #fff;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        /* ══════════════════════════════════
+           FOOTER
+        ══════════════════════════════════ */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border-top: 1px solid #ececec;
+            padding: 7px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .footer-avatar {
+            width: 26px;
+            height: 26px;
+            min-width: 26px;
+            min-height: 26px;
+            background: #E2001A;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .footer-avatar span {
+            color: #fff;
+            font-size: 8px;
+            font-weight: bold;
+        }
+
+        .footer-spec-name {
+            font-size: 8.5px;
+            font-weight: bold;
+            color: #1a1a1a;
+        }
+
+        .footer-spec-role {
+            font-size: 6px;
+            color: #E2001A;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 1px;
+        }
+
+        .footer-center {
+            font-size: 6px;
+            color: #ccc;
+            text-align: center;
+        }
+
+        .footer-right {
+            text-align: right;
+        }
+
+        .f-brand {
+            font-size: 10px;
+            font-weight: bold;
+            color: #1a1a1a;
+            letter-spacing: 2px;
+        }
+
+        .f-sub {
+            font-size: 5.5px;
+            color: #bbb;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-top: 1px;
+        }
+
+        /* ══════════════════════════════════
+           WATERMARK / CORNER ACCENT
+        ══════════════════════════════════ */
+        .corner-accent {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 0 28px 28px 0;
+            border-color: transparent #E2001A transparent transparent;
+        }
+
+    </style>
 </head>
 <body>
 
@@ -524,107 +540,107 @@
 
 <!-- Header -->
 <div class="header">
-  <div class="brand-block">
-    <div class="logo-box">{{ logo_img }}</div>
-    <div class="brand-text-block">
-      <div class="brand-name">RHIK</div>
-      <div class="brand-sub">Security &amp; Systems</div>
+    <div class="brand-block">
+        <div class="logo-box">{{ logo_img }}</div>
+        <div class="brand-text-block">
+            <div class="brand-name">RHiK</div>
+            <div class="brand-sub">Security &amp; Systems</div>
+        </div>
     </div>
-  </div>
-  <div class="header-right">
-    <div class="order-label">Коммерческое предложение</div>
-    <div class="order-number">#{{ order_id }}</div>
-    <div class="order-date">{{ created_at }}</div>
-  </div>
+    <div class="header-right">
+        <div class="order-label">Коммерческое предложение</div>
+        <div class="order-number">#{{ order_id }}</div>
+        <div class="order-date">{{ created_at }}</div>
+    </div>
 </div>
 
 <!-- Hero dark band -->
 <div class="hero-band">
-  <div class="hero-item">
-    <div class="hero-label">Клиент</div>
-    <div class="hero-value">{{ client }}</div>
-  </div>
-  <div class="hero-item">
-    <div class="hero-label">НДС</div>
-    <div class="hero-value">{{ vat }}%</div>
-  </div>
-  <div class="hero-item">
-    <div class="hero-label">Прочие расходы</div>
-    <div class="hero-value">{{ additional_expenses_pct }}%</div>
-  </div>
-  <div class="hero-item">
-    <div class="hero-label">Статус</div>
-    <div class="hero-value">
-      <span class="status-pill {{ status_class }}">{{ status_text }}</span>
+    <div class="hero-item">
+        <div class="hero-label">Клиент</div>
+        <div class="hero-value">{{ client }}</div>
     </div>
-  </div>
+    <div class="hero-item">
+        <div class="hero-label">НДС</div>
+        <div class="hero-value">{{ vat }}%</div>
+    </div>
+    <div class="hero-item">
+        <div class="hero-label">Прочие расходы</div>
+        <div class="hero-value">{{ additional_expenses_pct }}%</div>
+    </div>
+    <div class="hero-item">
+        <div class="hero-label">Статус</div>
+        <div class="hero-value">
+            <span class="status-pill {{ status_class }}">{{ status_text }}</span>
+        </div>
+    </div>
 </div>
 
 <!-- Products section -->
 <div class="content">
-  <div class="section-heading">
-    <div class="section-dot"></div>
-    <div class="section-heading-text">Список товаров</div>
-    <div class="section-line"></div>
-  </div>
+    <div class="section-heading">
+        <div class="section-dot"></div>
+        <div class="section-heading-text">Список товаров</div>
+        <div class="section-line"></div>
+    </div>
 
-  <table class="products-table">
-    <thead>
-      <tr>
-        <th style="width:26px;">№</th>
-        <th class="th-name">Наименование товара</th>
-        <th style="width:54px;">Фото</th>
-        <th style="width:55px;">Кол-во</th>
-        <th style="width:80px;">Цена за ед.</th>
-        <th style="width:85px;">Сумма</th>
-      </tr>
-    </thead>
-    <tbody>
-      {{ products_rows }}
-    </tbody>
-  </table>
+    <table class="products-table">
+        <thead>
+        <tr>
+            <th style="width:26px;">№</th>
+            <th class="th-name">Наименование товара</th>
+            <th style="width:54px;">Фото</th>
+            <th style="width:55px;">Кол-во</th>
+            <th style="width:80px;">Цена за ед.</th>
+            <th style="width:85px;">Сумма</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{ products_rows }}
+        </tbody>
+    </table>
 </div>
 
 <!-- Totals -->
 <div class="bottom-section">
-  <div class="totals-card">
-    <div class="totals-header">Расчёт стоимости</div>
-    <div class="totals-row">
-      <span class="t-label">Итого без НДС</span>
-      <span class="t-value">{{ total_without_vat }}</span>
+    <div class="totals-card">
+        <div class="totals-header">Расчёт стоимости</div>
+        <div class="totals-row">
+            <span class="t-label">Итого без НДС</span>
+            <span class="t-value">{{ total_without_vat }}</span>
+        </div>
+        <div class="totals-row">
+            <span class="t-label">НДС</span>
+            <span class="t-value">{{ total_with_vat }}</span>
+        </div>
+        <div class="totals-row">
+            <span class="t-label">Прочие расходы</span>
+            <span class="t-value">{{ additional_expenses_amount }}</span>
+        </div>
+        {{ advance_row }}
+        <div class="totals-row final-row">
+            <span class="t-label">Итого к оплате</span>
+            <span class="t-value">{{ final_total }}</span>
+        </div>
     </div>
-    <div class="totals-row">
-      <span class="t-label">НДС</span>
-      <span class="t-value">{{ total_with_vat }}</span>
-    </div>
-    <div class="totals-row">
-      <span class="t-label">Прочие расходы</span>
-      <span class="t-value">{{ additional_expenses_amount }}</span>
-    </div>
-    {{ advance_row }}
-    <div class="totals-row final-row">
-      <span class="t-label">Итого к оплате</span>
-      <span class="t-value">{{ final_total }}</span>
-    </div>
-  </div>
 </div>
 
 <!-- Footer -->
 <div class="footer">
-  <div class="footer-left">
-    <div class="footer-avatar"><span>ХР</span></div>
-    <div>
-      <div class="footer-spec-name">Хван Руслан</div>
-      <div class="footer-spec-role">Специалист</div>
+    <div class="footer-left">
+        <div class="footer-avatar"><span>ХР</span></div>
+        <div>
+            <div class="footer-spec-name">Хван Руслан</div>
+            <div class="footer-spec-role">Специалист</div>
+        </div>
     </div>
-  </div>
-  <div class="footer-center">
-    Документ сформирован автоматически<br>RHIK Security &amp; Systems
-  </div>
-  <div class="footer-right">
-    <div class="f-brand">RHIK</div>
-    <div class="f-sub">Security &amp; Systems</div>
-  </div>
+    <div class="footer-center">
+        Документ сформирован автоматически<br>RHiK Security &amp; Systems
+    </div>
+    <div class="footer-right">
+        <div class="f-brand">RHiK</div>
+        <div class="f-sub">Security &amp; Systems</div>
+    </div>
 </div>
 
 </body>
