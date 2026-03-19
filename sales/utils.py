@@ -14,6 +14,17 @@ TELEGRAM_BOT_TOKEN = '7775474735:AAHcPmCc7VpC_bxzgDWQvQs_lTpjCAV0C8Q'
 TELEGRAM_CHAT_ID = '-1002411014709'
 
 TEMPLATE_PATH = os.path.join(os.path.dirname(__file__), 'templates', 'sales', 'order_pdf.html')
+LOGO_PATH = os.path.join(os.path.dirname(__file__), 'static', 'images', 'Logo.png')
+
+
+def get_logo_base64():
+    try:
+        with open(LOGO_PATH, 'rb') as f:
+            encoded = base64.b64encode(f.read()).decode('utf-8')
+        return f"data:image/png;base64,{encoded}"
+    except Exception as e:
+        print(f"Ошибка при загрузке логотипа: {e}")
+        return None
 
 
 def convert_webp_to_png(photo_path):
@@ -147,8 +158,8 @@ def generate_order_pdf(order):
         total = product.quantity * product.price
         products_rows += f'''
         <tr>
+            <td class="td-num"><span class="row-num">{i:02d}</span></td>
             <td class="td-name">
-                <div class="product-num">#{i:02d}</div>
                 <div class="product-name-text">{product.name}</div>
             </td>
             <td class="td-photo">{photo_cell}</td>
@@ -182,6 +193,13 @@ def generate_order_pdf(order):
         f'</div>'
     ) if order.advance else ''
 
+    logo_base64 = get_logo_base64()
+    logo_html = (
+        f'<img src="{logo_base64}" class="logo-img" alt="RHIK">'
+        if logo_base64
+        else '<span>RHIK</span>'
+    )
+
     html = (template
             .replace('{{ order_id }}', str(order.id))
             .replace('{{ created_at }}', created_at)
@@ -197,6 +215,7 @@ def generate_order_pdf(order):
             .replace('{{ additional_expenses_amount }}', f'{additional_expenses_amount:.2f}')
             .replace('{{ advance_row }}', advance_row)
             .replace('{{ final_total }}', f'{final_total:.2f}')
+            .replace('{{ logo_img }}', logo_html)
             )
 
     pdf_bytes = HTML(string=html, base_url=os.getcwd()).write_pdf()

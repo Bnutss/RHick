@@ -52,21 +52,19 @@
   }
 
   .logo-box {
-    width: 34px;
-    height: 34px;
-    background: #E2001A;
-    border-radius: 5px;
+    width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
   }
 
-  .logo-box span {
-    color: #fff;
-    font-size: 9px;
-    font-weight: bold;
-    letter-spacing: 0.5px;
+  .logo-img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    display: block;
   }
 
   .brand-text-block {
@@ -275,11 +273,23 @@
     text-align: left;
   }
 
-  .product-num {
-    font-size: 6px;
-    color: #bbb;
-    margin-bottom: 1px;
-    text-align: left;
+  .td-num {
+    width: 26px;
+    text-align: center;
+    padding: 0 4px;
+  }
+
+  .row-num {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    line-height: 18px;
+    text-align: center;
+    background: #f0f0f0;
+    color: #888;
+    font-size: 7px;
+    font-weight: bold;
+    border-radius: 50%;
   }
 
   /* Фото ячейка */
@@ -515,7 +525,7 @@
 <!-- Header -->
 <div class="header">
   <div class="brand-block">
-    <div class="logo-box"><span>RHIK</span></div>
+    <div class="logo-box">{{ logo_img }}</div>
     <div class="brand-text-block">
       <div class="brand-name">RHIK</div>
       <div class="brand-sub">Security &amp; Systems</div>
@@ -561,6 +571,7 @@
   <table class="products-table">
     <thead>
       <tr>
+        <th style="width:26px;">№</th>
         <th class="th-name">Наименование товара</th>
         <th style="width:54px;">Фото</th>
         <th style="width:55px;">Кол-во</th>
