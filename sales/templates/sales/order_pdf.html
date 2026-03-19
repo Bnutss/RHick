@@ -1,424 +1,613 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <style>
-        @page {
-            size: A4 landscape;
-            margin: 10mm 12mm 16mm 12mm;
-        }
+<meta charset="UTF-8">
+<style>
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
 
-        body {
-            font-family: Arial, sans-serif;
-            font-size: 8px;
-            color: #1a1a1a;
-            line-height: 1.3;
-        }
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 7px;
-            margin-bottom: 8px;
-            border-bottom: 3px solid #E2001A;
-        }
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 9px;
+    color: #1a1a1a;
+    background: #ffffff;
+    width: 210mm;
+    min-height: 297mm;
+  }
 
-        .header-brand {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+  /* ══════════════════════════════════
+     TOP RED STRIPE
+  ══════════════════════════════════ */
+  .top-stripe {
+    height: 5px;
+    background: #E2001A;
+    width: 100%;
+  }
 
-        .logo-box {
-            width: 36px;
-            height: 36px;
-            background: #E2001A;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 4px;
-        }
+  /* ══════════════════════════════════
+     HEADER
+  ══════════════════════════════════ */
+  .header {
+    padding: 14px 20px 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #ffffff;
+    border-bottom: 1px solid #ececec;
+  }
 
-        .logo-box span {
-            color: white;
-            font-weight: bold;
-            font-size: 10px;
-            letter-spacing: 0.5px;
-        }
+  .brand-block {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
 
-        .brand-name {
-            font-size: 13px;
-            font-weight: bold;
-            color: #1a1a1a;
-            letter-spacing: 1px;
-        }
+  .logo-box {
+    width: 42px;
+    height: 42px;
+    background: #E2001A;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-        .brand-sub {
-            font-size: 6px;
-            color: #999;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-        }
+  .logo-box span {
+    color: #fff;
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+  }
 
-        .header-right {
-            text-align: right;
-        }
+  .brand-text-block {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
 
-        .order-number {
-            font-size: 15px;
-            font-weight: bold;
-            color: #E2001A;
-        }
+  .brand-name {
+    font-size: 17px;
+    font-weight: bold;
+    color: #1a1a1a;
+    letter-spacing: 2px;
+    line-height: 1;
+  }
 
-        .order-date {
-            font-size: 7px;
-            color: #777;
-            margin-top: 1px;
-        }
+  .brand-sub {
+    font-size: 6.5px;
+    color: #aaa;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
 
-        .info-row {
-            display: flex;
-            gap: 6px;
-            margin-bottom: 8px;
-        }
+  .header-right {
+    text-align: right;
+  }
 
-        .info-card {
-            flex: 1;
-            background: #f7f7f7;
-            border-left: 3px solid #E2001A;
-            padding: 4px 6px;
-            border-radius: 0 3px 3px 0;
-        }
+  .order-label {
+    font-size: 6.5px;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 2px;
+  }
 
-        .info-card .label {
-            font-size: 5.5px;
-            color: #999;
-            text-transform: uppercase;
-            letter-spacing: 0.4px;
-            margin-bottom: 2px;
-        }
+  .order-number {
+    font-size: 22px;
+    font-weight: bold;
+    color: #E2001A;
+    letter-spacing: 0.5px;
+    line-height: 1;
+  }
 
-        .info-card .value {
-            font-size: 8px;
-            font-weight: bold;
-            color: #1a1a1a;
-        }
+  .order-date {
+    font-size: 7px;
+    color: #888;
+    margin-top: 3px;
+  }
 
-        .status-badge {
-            display: inline-block;
-            padding: 2px 7px;
-            border-radius: 3px;
-            font-size: 6.5px;
-            font-weight: bold;
-            letter-spacing: 0.4px;
-            text-transform: uppercase;
-        }
+  /* ══════════════════════════════════
+     HERO BAND — тёмная полоса с данными
+  ══════════════════════════════════ */
+  .hero-band {
+    background: #1a1a1a;
+    padding: 10px 20px;
+    display: flex;
+    gap: 0;
+  }
 
-        .status-confirmed {
-            background: #d4edda;
-            color: #155724;
-        }
+  .hero-item {
+    flex: 1;
+    padding: 0 14px 0 0;
+    border-right: 1px solid #333;
+  }
 
-        .status-rejected {
-            background: #f8d7da;
-            color: #721c24;
-        }
+  .hero-item:last-child {
+    border-right: none;
+    padding-right: 0;
+    padding-left: 14px;
+  }
 
-        .status-pending {
-            background: #fff3cd;
-            color: #856404;
-        }
+  .hero-item:first-child {
+    padding-left: 0;
+    flex: 1.6;
+  }
 
-        .accent-bar {
-            height: 2px;
-            background: linear-gradient(to right, #E2001A, #ff6b6b, transparent);
-            margin-bottom: 6px;
-        }
+  .hero-label {
+    font-size: 5.5px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 3px;
+  }
 
-        .section-title {
-            font-size: 7px;
-            font-weight: bold;
-            color: #E2001A;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 4px;
-            padding-bottom: 3px;
-            border-bottom: 1px solid #ebebeb;
-        }
+  .hero-value {
+    font-size: 9px;
+    font-weight: bold;
+    color: #ffffff;
+    line-height: 1.2;
+  }
 
-        .products-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 8px;
-        }
+  .status-pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 6.5px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
 
-        .products-table thead tr {
-            background: #1a1a1a;
-        }
+  .status-confirmed { background: #1e7e34; color: #fff; }
+  .status-rejected  { background: #b21f2d; color: #fff; }
+  .status-pending   { background: #d39e00; color: #fff; }
 
-        .products-table th {
-            padding: 5px 5px;
-            text-align: center;
-            font-size: 6.5px;
-            font-weight: bold;
-            color: #fff;
-            letter-spacing: 0.3px;
-            text-transform: uppercase;
-        }
+  /* ══════════════════════════════════
+     CONTENT AREA
+  ══════════════════════════════════ */
+  .content {
+    padding: 14px 20px;
+  }
 
-        .products-table th:first-child {
-            text-align: left;
-            padding-left: 7px;
-        }
+  /* ── Section heading ── */
+  .section-heading {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 7px;
+    margin-top: 12px;
+  }
 
-        .products-table td {
-            padding: 4px 5px;
-            border-bottom: 1px solid #ebebeb;
-            text-align: center;
-            font-size: 7.5px;
-            vertical-align: middle;
-        }
+  .section-heading:first-child {
+    margin-top: 0;
+  }
 
-        .products-table td:first-child {
-            text-align: left;
-            padding-left: 7px;
-        }
+  .section-dot {
+    width: 4px;
+    height: 14px;
+    background: #E2001A;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
 
-        .products-table tbody tr:nth-child(even) {
-            background: #fafafa;
-        }
+  .section-heading-text {
+    font-size: 7.5px;
+    font-weight: bold;
+    color: #1a1a1a;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+  }
 
-        .product-name {
-            font-weight: 600;
-            color: #1a1a1a;
-            word-break: break-word;
-            line-height: 1.4;
-        }
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: #ececec;
+  }
 
-        .product-image {
-            width: 28px;
-            height: 28px;
-            object-fit: cover;
-            border: 1px solid #ddd;
-            border-radius: 2px;
-        }
+  /* ══════════════════════════════════
+     PRODUCTS TABLE
+  ══════════════════════════════════ */
+  .products-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
 
-        .no-image {
-            width: 28px;
-            height: 28px;
-            background: #f0f0f0;
-            border: 1px solid #ddd;
-            border-radius: 2px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 5px;
-            color: #bbb;
-        }
+  .products-table thead tr {
+    background: #1a1a1a;
+  }
 
-        .price-cell {
-            font-weight: 600;
-            color: #333;
-        }
+  .products-table th {
+    padding: 7px 8px;
+    font-size: 6.5px;
+    font-weight: bold;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    text-align: center;
+    white-space: nowrap;
+  }
 
-        .total-cell {
-            font-weight: bold;
-            color: #E2001A;
-        }
+  .products-table th.th-name {
+    text-align: left;
+    padding-left: 10px;
+  }
 
-        .totals-section {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 10px;
-        }
+  .products-table td {
+    padding: 0;
+    border-bottom: 1px solid #f0f0f0;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 8px;
+  }
 
-        .totals-box {
-            width: 240px;
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            overflow: hidden;
-        }
+  .products-table tbody tr:nth-child(even) {
+    background: #fafafa;
+  }
 
-        .totals-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 4px 10px;
-            font-size: 7.5px;
-            border-bottom: 1px solid #ebebeb;
-        }
+  .products-table tbody tr:hover {
+    background: #fff5f5;
+  }
 
-        .totals-row:last-child {
-            border-bottom: none;
-        }
+  .td-inner {
+    padding: 6px 8px;
+  }
 
-        .totals-row .t-label {
-            color: #666;
-        }
+  .td-name {
+    text-align: left;
+    padding-left: 10px;
+  }
 
-        .totals-row .t-value {
-            font-weight: bold;
-            color: #1a1a1a;
-        }
+  .product-name-text {
+    font-size: 8px;
+    font-weight: bold;
+    color: #1a1a1a;
+    line-height: 1.35;
+  }
 
-        .totals-row.final {
-            background: #E2001A;
-            padding: 5px 10px;
-        }
+  .product-num {
+    font-size: 6px;
+    color: #bbb;
+    margin-bottom: 1px;
+  }
 
-        .totals-row.final .t-label,
-        .totals-row.final .t-value {
-            color: white;
-            font-size: 8px;
-            font-weight: bold;
-        }
+  /* Фото ячейка */
+  .td-photo {
+    width: 52px;
+    padding: 4px 6px;
+  }
 
-        .footer {
-            position: fixed;
-            bottom: 5mm;
-            left: 12mm;
-            right: 12mm;
-            border-top: 1px solid #e0e0e0;
-            padding-top: 4px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-        }
+  .photo-wrap {
+    width: 40px;
+    height: 40px;
+    margin: 0 auto;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-        .footer-specialist {
-            display: flex;
-            flex-direction: column;
-        }
+  .product-image {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    display: block;
+  }
 
-        .spec-title {
-            font-size: 5.5px;
-            color: #999;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+  .no-photo-icon {
+    font-size: 5.5px;
+    color: #ccc;
+    text-align: center;
+    line-height: 1.3;
+  }
 
-        .spec-name {
-            font-size: 9px;
-            font-weight: bold;
-            color: #1a1a1a;
-            margin-top: 1px;
-        }
+  .td-qty {
+    width: 55px;
+    font-weight: bold;
+    color: #333;
+    font-size: 9px;
+  }
 
-        .spec-role {
-            font-size: 6.5px;
-            color: #E2001A;
-        }
+  .td-price {
+    width: 80px;
+    color: #444;
+    font-size: 8px;
+  }
 
-        .footer-right {
-            text-align: right;
-        }
+  .td-total {
+    width: 85px;
+    font-weight: bold;
+    color: #E2001A;
+    font-size: 9px;
+  }
 
-        .f-brand {
-            font-size: 8px;
-            font-weight: bold;
-            color: #1a1a1a;
-            letter-spacing: 1px;
-        }
+  /* ══════════════════════════════════
+     TOTALS BLOCK
+  ══════════════════════════════════ */
+  .bottom-section {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0 20px 14px 20px;
+    margin-top: 2px;
+  }
 
-        .f-sub {
-            font-size: 5.5px;
-            color: #bbb;
-        }
-    </style>
+  .totals-card {
+    width: 220px;
+    border: 1px solid #e8e8e8;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+
+  .totals-header {
+    background: #f7f7f7;
+    padding: 5px 12px;
+    font-size: 6px;
+    font-weight: bold;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 1px solid #ececec;
+  }
+
+  .totals-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 12px;
+    border-bottom: 1px solid #f3f3f3;
+    font-size: 8px;
+  }
+
+  .totals-row:last-child {
+    border-bottom: none;
+  }
+
+  .t-label {
+    color: #666;
+  }
+
+  .t-value {
+    font-weight: bold;
+    color: #1a1a1a;
+  }
+
+  .totals-row.advance-row .t-label { color: #555; }
+  .totals-row.advance-row .t-value { color: #1a7a3e; }
+
+  .totals-row.final-row {
+    background: #E2001A;
+    padding: 7px 12px;
+  }
+
+  .totals-row.final-row .t-label {
+    color: #fff;
+    font-size: 8.5px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .totals-row.final-row .t-value {
+    color: #fff;
+    font-size: 11px;
+    font-weight: bold;
+  }
+
+  /* ══════════════════════════════════
+     FOOTER
+  ══════════════════════════════════ */
+  .footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border-top: 1px solid #ececec;
+    padding: 7px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .footer-avatar {
+    width: 26px;
+    height: 26px;
+    background: #E2001A;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .footer-avatar span {
+    color: #fff;
+    font-size: 8px;
+    font-weight: bold;
+  }
+
+  .footer-spec-name {
+    font-size: 8.5px;
+    font-weight: bold;
+    color: #1a1a1a;
+  }
+
+  .footer-spec-role {
+    font-size: 6px;
+    color: #E2001A;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 1px;
+  }
+
+  .footer-center {
+    font-size: 6px;
+    color: #ccc;
+    text-align: center;
+  }
+
+  .footer-right {
+    text-align: right;
+  }
+
+  .f-brand {
+    font-size: 10px;
+    font-weight: bold;
+    color: #1a1a1a;
+    letter-spacing: 2px;
+  }
+
+  .f-sub {
+    font-size: 5.5px;
+    color: #bbb;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 1px;
+  }
+
+  /* ══════════════════════════════════
+     WATERMARK / CORNER ACCENT
+  ══════════════════════════════════ */
+  .corner-accent {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 28px 28px 0;
+    border-color: transparent #E2001A transparent transparent;
+  }
+
+</style>
 </head>
 <body>
 
+<!-- Top red stripe -->
+<div class="top-stripe"></div>
+
+<!-- Corner accent -->
+<div class="corner-accent"></div>
+
+<!-- Header -->
 <div class="header">
-    <div class="header-brand">
-        <div class="logo-box"><span>RHIK</span></div>
-        <div>
-            <div class="brand-name">RHIK</div>
-            <div class="brand-sub">Security &amp; Systems</div>
-        </div>
+  <div class="brand-block">
+    <div class="logo-box"><span>RHIK</span></div>
+    <div class="brand-text-block">
+      <div class="brand-name">RHIK</div>
+      <div class="brand-sub">Security &amp; Systems</div>
     </div>
-    <div class="header-right">
-        <div class="order-number">Заказ #{{ order_id }}</div>
-        <div class="order-date">{{ created_at }}</div>
-    </div>
+  </div>
+  <div class="header-right">
+    <div class="order-label">Коммерческое предложение</div>
+    <div class="order-number">#{{ order_id }}</div>
+    <div class="order-date">{{ created_at }}</div>
+  </div>
 </div>
 
-<div class="info-row">
-    <div class="info-card">
-        <div class="label">Клиент</div>
-        <div class="value">{{ client }}</div>
+<!-- Hero dark band -->
+<div class="hero-band">
+  <div class="hero-item">
+    <div class="hero-label">Клиент</div>
+    <div class="hero-value">{{ client }}</div>
+  </div>
+  <div class="hero-item">
+    <div class="hero-label">НДС</div>
+    <div class="hero-value">{{ vat }}%</div>
+  </div>
+  <div class="hero-item">
+    <div class="hero-label">Прочие расходы</div>
+    <div class="hero-value">{{ additional_expenses_pct }}%</div>
+  </div>
+  <div class="hero-item">
+    <div class="hero-label">Статус</div>
+    <div class="hero-value">
+      <span class="status-pill {{ status_class }}">{{ status_text }}</span>
     </div>
-    <div class="info-card">
-        <div class="label">НДС</div>
-        <div class="value">{{ vat }}%</div>
-    </div>
-    <div class="info-card">
-        <div class="label">Прочие расходы</div>
-        <div class="value">{{ additional_expenses_pct }}%</div>
-    </div>
-    <div class="info-card">
-        <div class="label">Статус</div>
-        <div class="value">
-            <span class="status-badge {{ status_class }}">{{ status_text }}</span>
-        </div>
-    </div>
+  </div>
 </div>
 
-<div class="accent-bar"></div>
-<div class="section-title">Список товаров</div>
+<!-- Products section -->
+<div class="content">
+  <div class="section-heading">
+    <div class="section-dot"></div>
+    <div class="section-heading-text">Список товаров</div>
+    <div class="section-line"></div>
+  </div>
 
-<table class="products-table">
+  <table class="products-table">
     <thead>
-    <tr>
-        <th style="width:35%;">Название товара</th>
-        <th style="width:8%;">Фото</th>
-        <th style="width:9%;">Кол-во</th>
-        <th style="width:24%;">Цена за ед.</th>
-        <th style="width:24%;">Общая стоимость</th>
-    </tr>
+      <tr>
+        <th class="th-name">Наименование товара</th>
+        <th style="width:52px;">Фото</th>
+        <th style="width:55px;">Кол-во</th>
+        <th style="width:80px;">Цена за ед.</th>
+        <th style="width:85px;">Сумма</th>
+      </tr>
     </thead>
     <tbody>
-    {{ products_rows }}
+      {{ products_rows }}
     </tbody>
-</table>
-
-<div class="totals-section">
-    <div class="totals-box">
-        <div class="totals-row">
-            <span class="t-label">Итого без НДС</span>
-            <span class="t-value">{{ total_without_vat }}</span>
-        </div>
-        <div class="totals-row">
-            <span class="t-label">Итого с НДС</span>
-            <span class="t-value">{{ total_with_vat }}</span>
-        </div>
-        <div class="totals-row">
-            <span class="t-label">Прочие расходы</span>
-            <span class="t-value">{{ additional_expenses_amount }}</span>
-        </div>
-        {{ advance_row }}
-        <div class="totals-row final">
-            <span class="t-label">Общий итог</span>
-            <span class="t-value">{{ final_total }}</span>
-        </div>
-    </div>
+  </table>
 </div>
 
+<!-- Totals -->
+<div class="bottom-section">
+  <div class="totals-card">
+    <div class="totals-header">Расчёт стоимости</div>
+    <div class="totals-row">
+      <span class="t-label">Итого без НДС</span>
+      <span class="t-value">{{ total_without_vat }}</span>
+    </div>
+    <div class="totals-row">
+      <span class="t-label">НДС</span>
+      <span class="t-value">{{ total_with_vat }}</span>
+    </div>
+    <div class="totals-row">
+      <span class="t-label">Прочие расходы</span>
+      <span class="t-value">{{ additional_expenses_amount }}</span>
+    </div>
+    {{ advance_row }}
+    <div class="totals-row final-row">
+      <span class="t-label">Итого к оплате</span>
+      <span class="t-value">{{ final_total }}</span>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
 <div class="footer">
-    <div class="footer-specialist">
-        <span class="spec-title">Ответственный специалист</span>
-        <span class="spec-name">Хван Руслан</span>
-        <span class="spec-role">Специалист</span>
+  <div class="footer-left">
+    <div class="footer-avatar"><span>ХР</span></div>
+    <div>
+      <div class="footer-spec-name">Хван Руслан</div>
+      <div class="footer-spec-role">Специалист</div>
     </div>
-    <div class="footer-right">
-        <div class="f-brand">RHIK</div>
-        <div class="f-sub">Security &amp; Systems</div>
-    </div>
+  </div>
+  <div class="footer-center">
+    Документ сформирован автоматически<br>RHIK Security &amp; Systems
+  </div>
+  <div class="footer-right">
+    <div class="f-brand">RHIK</div>
+    <div class="f-sub">Security &amp; Systems</div>
+  </div>
 </div>
 
 </body>

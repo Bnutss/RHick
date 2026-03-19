@@ -133,21 +133,28 @@ def generate_order_excel(order):
 
 def generate_order_pdf(order):
     products_rows = ''
-    for product in order.products.all():
+    for i, product in enumerate(order.products.all(), 1):
         photo_base64 = get_image_base64(product.photo) if product.photo else None
         if photo_base64:
-            photo_cell = f'<img src="{photo_base64}" class="product-image">'
+            photo_cell = (
+                f'<div class="photo-wrap">'
+                f'<img src="{photo_base64}" class="product-image">'
+                f'</div>'
+            )
         else:
-            photo_cell = '<div class="no-image">Нет</div>'
+            photo_cell = '<div class="photo-wrap"><div class="no-photo-icon">Нет<br>фото</div></div>'
 
         total = product.quantity * product.price
         products_rows += f'''
         <tr>
-            <td class="product-name">{product.name}</td>
-            <td>{photo_cell}</td>
-            <td>{product.quantity}</td>
-            <td class="price-cell">{product.price:.2f}</td>
-            <td class="total-cell">{total:.2f}</td>
+            <td class="td-name">
+                <div class="product-num">#{i:02d}</div>
+                <div class="product-name-text">{product.name}</div>
+            </td>
+            <td class="td-photo">{photo_cell}</td>
+            <td class="td-qty">{product.quantity}</td>
+            <td class="td-price">{product.price:.2f}</td>
+            <td class="td-total">{total:.2f}</td>
         </tr>'''
 
     total_without_vat = order.get_total_price()
@@ -169,7 +176,7 @@ def generate_order_pdf(order):
         template = f.read()
 
     advance_row = (
-        f'<div class="totals-row">'
+        f'<div class="totals-row advance-row">'
         f'<span class="t-label">Аванс</span>'
         f'<span class="t-value">{order.advance:.2f}</span>'
         f'</div>'
