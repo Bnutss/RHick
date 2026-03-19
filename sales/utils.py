@@ -168,8 +168,12 @@ def generate_order_pdf(order):
     with open(TEMPLATE_PATH, 'r', encoding='utf-8') as f:
         template = f.read()
 
-    advance = order.advance if order.advance else 0
-    advance_row = f'<tr><td>Аванс</td><td class="amount">{advance:.2f}</td></tr>' if order.advance else ''
+    advance_row = (
+        f'<div class="totals-row">'
+        f'<span class="t-label">Аванс</span>'
+        f'<span class="t-value">{order.advance:.2f}</span>'
+        f'</div>'
+    ) if order.advance else ''
 
     html = (template
             .replace('{{ order_id }}', str(order.id))
