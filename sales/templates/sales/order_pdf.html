@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 10mm 12mm 16mm 12mm;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 8px;
+            color: #1a1a1a;
+            line-height: 1.3;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 7px;
+            margin-bottom: 8px;
+            border-bottom: 3px solid #E2001A;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo-box {
+            width: 36px;
+            height: 36px;
+            background: #E2001A;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+        }
+
+        .logo-box span {
+            color: white;
+            font-weight: bold;
+            font-size: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        .brand-name {
+            font-size: 13px;
+            font-weight: bold;
+            color: #1a1a1a;
+            letter-spacing: 1px;
+        }
+
+        .brand-sub {
+            font-size: 6px;
+            color: #999;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .header-right {
+            text-align: right;
+        }
+
+        .order-number {
+            font-size: 15px;
+            font-weight: bold;
+            color: #E2001A;
+        }
+
+        .order-date {
+            font-size: 7px;
+            color: #777;
+            margin-top: 1px;
+        }
+
+        .info-row {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .info-card {
+            flex: 1;
+            background: #f7f7f7;
+            border-left: 3px solid #E2001A;
+            padding: 4px 6px;
+            border-radius: 0 3px 3px 0;
+        }
+
+        .info-card .label {
+            font-size: 5.5px;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            margin-bottom: 2px;
+        }
+
+        .info-card .value {
+            font-size: 8px;
+            font-weight: bold;
+            color: #1a1a1a;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 2px 7px;
+            border-radius: 3px;
+            font-size: 6.5px;
+            font-weight: bold;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+        }
+
+        .status-confirmed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .accent-bar {
+            height: 2px;
+            background: linear-gradient(to right, #E2001A, #ff6b6b, transparent);
+            margin-bottom: 6px;
+        }
+
+        .section-title {
+            font-size: 7px;
+            font-weight: bold;
+            color: #E2001A;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+            padding-bottom: 3px;
+            border-bottom: 1px solid #ebebeb;
+        }
+
+        .products-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 8px;
+        }
+
+        .products-table thead tr {
+            background: #1a1a1a;
+        }
+
+        .products-table th {
+            padding: 5px 5px;
+            text-align: center;
+            font-size: 6.5px;
+            font-weight: bold;
+            color: #fff;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+
+        .products-table th:first-child {
+            text-align: left;
+            padding-left: 7px;
+        }
+
+        .products-table td {
+            padding: 4px 5px;
+            border-bottom: 1px solid #ebebeb;
+            text-align: center;
+            font-size: 7.5px;
+            vertical-align: middle;
+        }
+
+        .products-table td:first-child {
+            text-align: left;
+            padding-left: 7px;
+        }
+
+        .products-table tbody tr:nth-child(even) {
+            background: #fafafa;
+        }
+
+        .product-name {
+            font-weight: 600;
+            color: #1a1a1a;
+            word-break: break-word;
+            line-height: 1.4;
+        }
+
+        .product-image {
+            width: 28px;
+            height: 28px;
+            object-fit: cover;
+            border: 1px solid #ddd;
+            border-radius: 2px;
+        }
+
+        .no-image {
+            width: 28px;
+            height: 28px;
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 2px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5px;
+            color: #bbb;
+        }
+
+        .price-cell {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .total-cell {
+            font-weight: bold;
+            color: #E2001A;
+        }
+
+        .totals-section {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 10px;
+        }
+
+        .totals-box {
+            width: 240px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .totals-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 10px;
+            font-size: 7.5px;
+            border-bottom: 1px solid #ebebeb;
+        }
+
+        .totals-row:last-child {
+            border-bottom: none;
+        }
+
+        .totals-row .t-label {
+            color: #666;
+        }
+
+        .totals-row .t-value {
+            font-weight: bold;
+            color: #1a1a1a;
+        }
+
+        .totals-row.final {
+            background: #E2001A;
+            padding: 5px 10px;
+        }
+
+        .totals-row.final .t-label,
+        .totals-row.final .t-value {
+            color: white;
+            font-size: 8px;
+            font-weight: bold;
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 5mm;
+            left: 12mm;
+            right: 12mm;
+            border-top: 1px solid #e0e0e0;
+            padding-top: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .footer-specialist {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .spec-title {
+            font-size: 5.5px;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .spec-name {
+            font-size: 9px;
+            font-weight: bold;
+            color: #1a1a1a;
+            margin-top: 1px;
+        }
+
+        .spec-role {
+            font-size: 6.5px;
+            color: #E2001A;
+        }
+
+        .footer-right {
+            text-align: right;
+        }
+
+        .f-brand {
+            font-size: 8px;
+            font-weight: bold;
+            color: #1a1a1a;
+            letter-spacing: 1px;
+        }
+
+        .f-sub {
+            font-size: 5.5px;
+            color: #bbb;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="header-brand">
+        <div class="logo-box"><span>RHIK</span></div>
+        <div>
+            <div class="brand-name">RHIK</div>
+            <div class="brand-sub">Security &amp; Systems</div>
+        </div>
+    </div>
+    <div class="header-right">
+        <div class="order-number">Заказ #{{ order_id }}</div>
+        <div class="order-date">{{ created_at }}</div>
+    </div>
+</div>
+
+<div class="info-row">
+    <div class="info-card">
+        <div class="label">Клиент</div>
+        <div class="value">{{ client }}</div>
+    </div>
+    <div class="info-card">
+        <div class="label">НДС</div>
+        <div class="value">{{ vat }}%</div>
+    </div>
+    <div class="info-card">
+        <div class="label">Прочие расходы</div>
+        <div class="value">{{ additional_expenses_pct }}%</div>
+    </div>
+    <div class="info-card">
+        <div class="label">Статус</div>
+        <div class="value">
+            <span class="status-badge {{ status_class }}">{{ status_text }}</span>
+        </div>
+    </div>
+</div>
+
+<div class="accent-bar"></div>
+<div class="section-title">Список товаров</div>
+
+<table class="products-table">
+    <thead>
+    <tr>
+        <th style="width:35%;">Название товара</th>
+        <th style="width:8%;">Фото</th>
+        <th style="width:9%;">Кол-во</th>
+        <th style="width:24%;">Цена за ед.</th>
+        <th style="width:24%;">Общая стоимость</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{ products_rows }}
+    </tbody>
+</table>
+
+<div class="totals-section">
+    <div class="totals-box">
+        <div class="totals-row">
+            <span class="t-label">Итого без НДС</span>
+            <span class="t-value">{{ total_without_vat }}</span>
+        </div>
+        <div class="totals-row">
+            <span class="t-label">Итого с НДС</span>
+            <span class="t-value">{{ total_with_vat }}</span>
+        </div>
+        <div class="totals-row">
+            <span class="t-label">Прочие расходы</span>
+            <span class="t-value">{{ additional_expenses_amount }}</span>
+        </div>
+        <div class="totals-row final">
+            <span class="t-label">Общий итог</span>
+            <span class="t-value">{{ final_total }}</span>
+        </div>
+    </div>
+</div>
+
+<div class="footer">
+    <div class="footer-specialist">
+        <span class="spec-title">Ответственный специалист</span>
+        <span class="spec-name">Хван Руслан</span>
+        <span class="spec-role">Специалист</span>
+    </div>
+    <div class="footer-right">
+        <div class="f-brand">RHIK</div>
+        <div class="f-sub">Security &amp; Systems</div>
+    </div>
+</div>
+
+</body>
+</html>

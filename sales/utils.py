@@ -3,31 +3,17 @@ from openpyxl.drawing.image import Image
 from openpyxl import Workbook
 from PIL import Image as PILImage
 import os
+import base64
 import requests
 import mimetypes
-from reportlab.lib.pagesizes import A4
-from reportlab.lib import colors
-from reportlab.lib.units import cm
-from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.pdfbase import pdfmetrics
-from reportlab.platypus import SimpleDocTemplate, Table, Spacer, TableStyle, Image as ReportLabImage, Paragraph, \
-    HRFlowable
-from reportlab.lib.styles import ParagraphStyle
-from reportlab.lib.enums import TA_LEFT, TA_RIGHT, TA_CENTER
+from weasyprint import HTML
 
 mimetypes.add_type('image/webp', '.webp')
 
 TELEGRAM_BOT_TOKEN = '7775474735:AAFHyJw-YL1e91AIVj-KIrWxg8Ps6GprXhs'
-
 TELEGRAM_CHAT_ID = '-1002411014709'
 
-HIK_RED = colors.HexColor('#E2001A')
-HIK_DARK = colors.HexColor('#1A1A1A')
-HIK_GRAY = colors.HexColor('#F7F7F7')
-HIK_LIGHT = colors.HexColor('#FAFAFA')
-HIK_BORDER = colors.HexColor('#E0E0E0')
-HIK_TEXT_GRAY = colors.HexColor('#888888')
-HIK_FINAL_TEXT = colors.HexColor('#FFFFFF')
+TEMPLATE_PATH = os.path.join(os.path.dirname(__file__), 'templates', 'sales', 'order_pdf.html')
 
 
 def convert_webp_to_png(photo_path):
@@ -35,6 +21,26 @@ def convert_webp_to_png(photo_path):
     with PILImage.open(photo_path) as img:
         img.save(png_path, 'PNG')
     return png_path
+
+
+def get_image_base64(photo_field):
+    if not photo_field:
+        return None
+    try:
+        path = photo_field.path
+        if path.lower().endswith('.webp'):
+            path = convert_webp_to_png(path)
+        if not os.path.exists(path):
+            return None
+        ext = os.path.splitext(path)[1].lower()
+        mime = 'image/jpeg' if ext in ['.jpg',
+                                       '.jpeg'] else 'image/png' if ext == '.png' else 'image/gif' if ext == '.gif' else 'application/octet-stream'
+        with open(path, 'rb') as f:
+            encoded = base64.b64encode(f.read()).decode('utf-8')
+        return f"data:{mime};base64,{encoded}"
+    except Exception as e:
+        print(f"Ошибка при обработке изображения: {e}")
+        return None
 
 
 def generate_order_excel(order):
@@ -125,286 +131,69 @@ def generate_order_excel(order):
     return file_path
 
 
-def register_fonts():
-    font_path = os.path.join(os.path.dirname(__file__), 'static', 'fonts', 'Roboto-Regular.ttf')
-    pdfmetrics.registerFont(TTFont('Roboto', font_path))
-
-
-def convert_image_for_pdf(photo_path):
-    if photo_path.lower().endswith('.webp'):
-        png_path = photo_path.replace('.webp', '.png')
-        with PILImage.open(photo_path) as img:
-            img.save(png_path, 'PNG')
-        return png_path
-    return photo_path
-
-
 def generate_order_pdf(order):
-    register_fonts()
+    products_rows = ''
+    for product in order.products.all():
+        photo_base64 = get_image_base64(product.photo) if product.photo else None
+        if photo_base64:
+            photo_cell = f'<img src="{photo_base64}" class="product-image">'
+        else:
+            photo_cell = '<div class="no-image">Нет</div>'
 
-    pdf_file_name = f"Заказ-{order.id}.pdf"
-    pdf_file_path = os.path.join("/tmp", pdf_file_name)
-    doc = SimpleDocTemplate(
-        pdf_file_path,
-        pagesize=A4,
-        rightMargin=1 * cm,
-        leftMargin=1 * cm,
-        topMargin=1 * cm,
-        bottomMargin=2 * cm
-    )
-    elements = []
+        total = product.quantity * product.price
+        products_rows += f'''
+        <tr>
+            <td class="product-name">{product.name}</td>
+            <td>{photo_cell}</td>
+            <td>{product.quantity}</td>
+            <td class="price-cell">{product.price:.2f}</td>
+            <td class="total-cell">{total:.2f}</td>
+        </tr>'''
 
-    header_data = [[
-        Table(
-            [[
-                Paragraph(f'<font name="Roboto" size="14" color="#1A1A1A"><b>RHIK</b></font>',
-                          ParagraphStyle('', fontName='Roboto')),
-                Paragraph(f'<font name="Roboto" size="7" color="#888888">Security &amp; Systems</font>',
-                          ParagraphStyle('', fontName='Roboto')),
-            ]],
-            colWidths=[3 * cm, 6 * cm],
-            style=[
-                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-                ('LEFTPADDING', (0, 0), (-1, -1), 0),
-            ]
-        ),
-        Table(
-            [[
-                Paragraph(f'<font name="Roboto" size="14" color="#E2001A"><b>Заказ #{order.id}</b></font>',
-                          ParagraphStyle('', fontName='Roboto', alignment=TA_RIGHT)),
-            ]],
-            colWidths=[9 * cm],
-            style=[
-                ('ALIGN', (0, 0), (-1, -1), 'RIGHT'),
-                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ]
-        ),
-    ]]
-
-    header_table = Table(header_data, colWidths=[9 * cm, 9 * cm])
-    header_table.setStyle(TableStyle([
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
-        ('LINEBELOW', (0, 0), (-1, -1), 2, HIK_RED),
-    ]))
-    elements.append(header_table)
-    elements.append(Spacer(1, 0.3 * cm))
+    total_without_vat = order.get_total_price()
+    total_with_vat = order.get_total_price_with_vat()
+    additional_expenses_amount = order.get_additional_expenses_amount()
+    final_total = total_with_vat + additional_expenses_amount
 
     if order.is_confirmed:
-        status_text = 'Подтвержден'
-        status_bg = colors.HexColor('#D4EDDA')
-        status_color = colors.HexColor('#155724')
+        status_class, status_text = 'status-confirmed', 'Подтвержден'
     elif order.is_rejected:
-        status_text = 'Отклонен'
-        status_bg = colors.HexColor('#F8D7DA')
-        status_color = colors.HexColor('#721C24')
+        status_class, status_text = 'status-rejected', 'Отклонен'
     else:
-        status_text = 'В ожидании'
-        status_bg = colors.HexColor('#FFF3CD')
-        status_color = colors.HexColor('#856404')
+        status_class, status_text = 'status-pending', 'В ожидании'
 
-    info_data = [[
-        Table([
-            [Paragraph('<font name="Roboto" size="5" color="#888888">КЛИЕНТ</font>',
-                       ParagraphStyle('', fontName='Roboto'))],
-            [Paragraph(f'<font name="Roboto" size="8" color="#1A1A1A"><b>{order.client}</b></font>',
-                       ParagraphStyle('', fontName='Roboto'))],
-        ], colWidths=[4.2 * cm], style=[('LEFTPADDING', (0, 0), (-1, -1), 6), ('RIGHTPADDING', (0, 0), (-1, -1), 4),
-                                        ('TOPPADDING', (0, 0), (-1, -1), 4), ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
-                                        ('LINEBEFORE', (0, 0), (0, -1), 3, HIK_RED),
-                                        ('BACKGROUND', (0, 0), (-1, -1), HIK_GRAY)]),
-        Table([
-            [Paragraph('<font name="Roboto" size="5" color="#888888">НДС</font>',
-                       ParagraphStyle('', fontName='Roboto'))],
-            [Paragraph(f'<font name="Roboto" size="8" color="#1A1A1A"><b>{order.vat if order.vat else 0}%</b></font>',
-                       ParagraphStyle('', fontName='Roboto'))],
-        ], colWidths=[4.2 * cm], style=[('LEFTPADDING', (0, 0), (-1, -1), 6), ('RIGHTPADDING', (0, 0), (-1, -1), 4),
-                                        ('TOPPADDING', (0, 0), (-1, -1), 4), ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
-                                        ('LINEBEFORE', (0, 0), (0, -1), 3, HIK_RED),
-                                        ('BACKGROUND', (0, 0), (-1, -1), HIK_GRAY)]),
-        Table([
-            [Paragraph('<font name="Roboto" size="5" color="#888888">ПРОЧИЕ РАСХОДЫ</font>',
-                       ParagraphStyle('', fontName='Roboto'))],
-            [Paragraph(
-                f'<font name="Roboto" size="8" color="#1A1A1A"><b>{order.additional_expenses if order.additional_expenses else 0}%</b></font>',
-                ParagraphStyle('', fontName='Roboto'))],
-        ], colWidths=[4.2 * cm], style=[('LEFTPADDING', (0, 0), (-1, -1), 6), ('RIGHTPADDING', (0, 0), (-1, -1), 4),
-                                        ('TOPPADDING', (0, 0), (-1, -1), 4), ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
-                                        ('LINEBEFORE', (0, 0), (0, -1), 3, HIK_RED),
-                                        ('BACKGROUND', (0, 0), (-1, -1), HIK_GRAY)]),
-        Table([
-            [Paragraph('<font name="Roboto" size="5" color="#888888">СТАТУС</font>',
-                       ParagraphStyle('', fontName='Roboto'))],
-            [Paragraph(f'<font name="Roboto" size="7" color="#{status_color.hexval()[2:]}"><b>{status_text}</b></font>',
-                       ParagraphStyle('', fontName='Roboto'))],
-        ], colWidths=[4.2 * cm], style=[('LEFTPADDING', (0, 0), (-1, -1), 6), ('RIGHTPADDING', (0, 0), (-1, -1), 4),
-                                        ('TOPPADDING', (0, 0), (-1, -1), 4), ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
-                                        ('LINEBEFORE', (0, 0), (0, -1), 3, HIK_RED),
-                                        ('BACKGROUND', (0, 0), (-1, -1), status_bg)]),
-    ]]
+    created_at = order.created_at.strftime('%d.%m.%Y %H:%M') if hasattr(order.created_at, 'strftime') else str(
+        order.created_at)
 
-    info_table = Table(info_data, colWidths=[4.4 * cm, 4.4 * cm, 4.4 * cm, 4.4 * cm])
-    info_table.setStyle(TableStyle([
-        ('LEFTPADDING', (0, 0), (-1, -1), 2),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 2),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-    ]))
-    elements.append(info_table)
-    elements.append(Spacer(1, 0.4 * cm))
+    with open(TEMPLATE_PATH, 'r', encoding='utf-8') as f:
+        template = f.read()
 
-    elements.append(HRFlowable(width='100%', thickness=1, color=HIK_RED, spaceAfter=6))
+    advance = order.advance if order.advance else 0
+    advance_row = f'<tr><td>Аванс</td><td class="amount">{advance:.2f}</td></tr>' if order.advance else ''
 
-    elements.append(Paragraph(
-        '<font name="Roboto" size="7" color="#E2001A"><b>СПИСОК ТОВАРОВ</b></font>',
-        ParagraphStyle('', fontName='Roboto', spaceBefore=2, spaceAfter=6)
-    ))
+    html = (template
+            .replace('{{ order_id }}', str(order.id))
+            .replace('{{ created_at }}', created_at)
+            .replace('{{ client }}', str(order.client))
+            .replace('{{ vat }}', str(order.vat if order.vat else 0))
+            .replace('{{ additional_expenses_pct }}',
+                     str(order.additional_expenses if order.additional_expenses else 0))
+            .replace('{{ status_class }}', status_class)
+            .replace('{{ status_text }}', status_text)
+            .replace('{{ products_rows }}', products_rows)
+            .replace('{{ total_without_vat }}', f'{total_without_vat:.2f}')
+            .replace('{{ total_with_vat }}', f'{total_with_vat:.2f}')
+            .replace('{{ additional_expenses_amount }}', f'{additional_expenses_amount:.2f}')
+            .replace('{{ advance_row }}', advance_row)
+            .replace('{{ final_total }}', f'{final_total:.2f}')
+            )
 
-    product_header = [
-        Paragraph('<font name="Roboto" size="6" color="#FFFFFF"><b>НАЗВАНИЕ ТОВАРА</b></font>',
-                  ParagraphStyle('', fontName='Roboto', alignment=TA_LEFT)),
-        Paragraph('<font name="Roboto" size="6" color="#FFFFFF"><b>ФОТО</b></font>',
-                  ParagraphStyle('', fontName='Roboto', alignment=TA_CENTER)),
-        Paragraph('<font name="Roboto" size="6" color="#FFFFFF"><b>КОЛ-ВО</b></font>',
-                  ParagraphStyle('', fontName='Roboto', alignment=TA_CENTER)),
-        Paragraph('<font name="Roboto" size="6" color="#FFFFFF"><b>ЦЕНА ЗА ЕД.</b></font>',
-                  ParagraphStyle('', fontName='Roboto', alignment=TA_CENTER)),
-        Paragraph('<font name="Roboto" size="6" color="#FFFFFF"><b>ОБЩАЯ СТОИМОСТЬ</b></font>',
-                  ParagraphStyle('', fontName='Roboto', alignment=TA_CENTER)),
-    ]
+    pdf_bytes = HTML(string=html, base_url=os.getcwd()).write_pdf()
 
-    data = [product_header]
+    pdf_file_path = os.path.join("/tmp", f"Заказ-{order.id}.pdf")
+    with open(pdf_file_path, 'wb') as f:
+        f.write(pdf_bytes)
 
-    for i, product in enumerate(order.products.all()):
-        row_bg = HIK_LIGHT if i % 2 == 0 else colors.white
-
-        photo_cell = Paragraph('<font name="Roboto" size="6" color="#BBBBBB">Нет</font>',
-                               ParagraphStyle('', fontName='Roboto', alignment=TA_CENTER))
-        if product.photo:
-            try:
-                photo_path = convert_image_for_pdf(product.photo.path)
-                if os.path.exists(photo_path):
-                    photo_cell = ReportLabImage(photo_path, width=1 * cm, height=1 * cm)
-            except Exception:
-                pass
-
-        row = [
-            Paragraph(f'<font name="Roboto" size="7" color="#1A1A1A"><b>{product.name}</b></font>',
-                      ParagraphStyle('', fontName='Roboto', alignment=TA_LEFT)),
-            photo_cell,
-            Paragraph(f'<font name="Roboto" size="7" color="#333333">{product.quantity}</font>',
-                      ParagraphStyle('', fontName='Roboto', alignment=TA_CENTER)),
-            Paragraph(f'<font name="Roboto" size="7" color="#333333">{product.price:.2f}</font>',
-                      ParagraphStyle('', fontName='Roboto', alignment=TA_CENTER)),
-            Paragraph(
-                f'<font name="Roboto" size="7" color="#E2001A"><b>{product.quantity * product.price:.2f}</b></font>',
-                ParagraphStyle('', fontName='Roboto', alignment=TA_CENTER)),
-        ]
-        data.append(row)
-
-    products_table = Table(data, colWidths=[6.5 * cm, 2 * cm, 2.5 * cm, 3.5 * cm, 3.5 * cm])
-
-    table_style = [
-        ('BACKGROUND', (0, 0), (-1, 0), HIK_DARK),
-        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, HIK_LIGHT]),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('ALIGN', (0, 1), (0, -1), 'LEFT'),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('LEFTPADDING', (0, 1), (0, -1), 6),
-        ('TOPPADDING', (0, 0), (-1, -1), 5),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
-        ('LINEBELOW', (0, 0), (-1, -1), 0.5, HIK_BORDER),
-    ]
-    products_table.setStyle(TableStyle(table_style))
-    elements.append(products_table)
-    elements.append(Spacer(1, 0.5 * cm))
-
-    total_price = order.get_total_price()
-    total_price_with_vat = order.get_total_price_with_vat()
-    additional_expenses_amount = order.get_additional_expenses_amount()
-    total_sum = total_price_with_vat + additional_expenses_amount
-
-    totals_data = [
-        [
-            Paragraph('<font name="Roboto" size="7" color="#666666">Итого без НДС</font>',
-                      ParagraphStyle('', fontName='Roboto')),
-            Paragraph(f'<font name="Roboto" size="7" color="#1A1A1A"><b>{total_price:.2f}</b></font>',
-                      ParagraphStyle('', fontName='Roboto', alignment=TA_RIGHT)),
-        ],
-        [
-            Paragraph('<font name="Roboto" size="7" color="#666666">Итого с НДС</font>',
-                      ParagraphStyle('', fontName='Roboto')),
-            Paragraph(f'<font name="Roboto" size="7" color="#1A1A1A"><b>{total_price_with_vat:.2f}</b></font>',
-                      ParagraphStyle('', fontName='Roboto', alignment=TA_RIGHT)),
-        ],
-        [
-            Paragraph('<font name="Roboto" size="7" color="#666666">Прочие расходы</font>',
-                      ParagraphStyle('', fontName='Roboto')),
-            Paragraph(f'<font name="Roboto" size="7" color="#1A1A1A"><b>{additional_expenses_amount:.2f}</b></font>',
-                      ParagraphStyle('', fontName='Roboto', alignment=TA_RIGHT)),
-        ],
-        [
-            Paragraph('<font name="Roboto" size="8" color="#FFFFFF"><b>Общий итог</b></font>',
-                      ParagraphStyle('', fontName='Roboto')),
-            Paragraph(f'<font name="Roboto" size="8" color="#FFFFFF"><b>{total_sum:.2f}</b></font>',
-                      ParagraphStyle('', fontName='Roboto', alignment=TA_RIGHT)),
-        ],
-    ]
-
-    totals_wrapper = [['', Table(
-        totals_data,
-        colWidths=[5 * cm, 4 * cm],
-        style=[
-            ('BACKGROUND', (0, 0), (-1, 2), colors.white),
-            ('BACKGROUND', (0, 3), (-1, 3), HIK_RED),
-            ('LINEBELOW', (0, 0), (-1, 2), 0.5, HIK_BORDER),
-            ('TOPPADDING', (0, 0), (-1, -1), 4),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
-            ('LEFTPADDING', (0, 0), (-1, -1), 8),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 8),
-            ('BOX', (0, 0), (-1, -1), 0.5, HIK_BORDER),
-        ]
-    )]]
-
-    totals_outer = Table(totals_wrapper, colWidths=[9 * cm, 9 * cm])
-    totals_outer.setStyle(TableStyle([
-        ('ALIGN', (0, 0), (-1, -1), 'RIGHT'),
-        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-        ('LEFTPADDING', (0, 0), (-1, -1), 0),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 0),
-    ]))
-    elements.append(totals_outer)
-    elements.append(Spacer(1, 0.8 * cm))
-
-    elements.append(HRFlowable(width='100%', thickness=0.5, color=HIK_BORDER, spaceAfter=5))
-
-    footer_data = [[
-        Table([
-            [Paragraph('<font name="Roboto" size="5" color="#999999">ОТВЕТСТВЕННЫЙ СПЕЦИАЛИСТ</font>',
-                       ParagraphStyle('', fontName='Roboto'))],
-            [Paragraph('<font name="Roboto" size="9" color="#1A1A1A"><b>Хван Руслан</b></font>',
-                       ParagraphStyle('', fontName='Roboto'))],
-            [Paragraph('<font name="Roboto" size="7" color="#E2001A">Специалист</font>',
-                       ParagraphStyle('', fontName='Roboto'))],
-        ], colWidths=[9 * cm], style=[('LEFTPADDING', (0, 0), (-1, -1), 0), ('TOPPADDING', (0, 0), (-1, -1), 1),
-                                      ('BOTTOMPADDING', (0, 0), (-1, -1), 1)]),
-        Table([
-            [Paragraph('<font name="Roboto" size="9" color="#1A1A1A"><b>RHIK</b></font>',
-                       ParagraphStyle('', fontName='Roboto', alignment=TA_RIGHT))],
-            [Paragraph('<font name="Roboto" size="6" color="#BBBBBB">Security &amp; Systems</font>',
-                       ParagraphStyle('', fontName='Roboto', alignment=TA_RIGHT))],
-        ], colWidths=[9 * cm], style=[('ALIGN', (0, 0), (-1, -1), 'RIGHT'), ('TOPPADDING', (0, 0), (-1, -1), 1),
-                                      ('BOTTOMPADDING', (0, 0), (-1, -1), 1)]),
-    ]]
-
-    footer_table = Table(footer_data, colWidths=[9 * cm, 9 * cm])
-    footer_table.setStyle(TableStyle([
-        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-        ('LEFTPADDING', (0, 0), (-1, -1), 0),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 0),
-    ]))
-    elements.append(footer_table)
-
-    doc.build(elements)
     return pdf_file_path
 
 
