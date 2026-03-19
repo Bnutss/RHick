@@ -10,7 +10,7 @@ from weasyprint import HTML
 
 mimetypes.add_type('image/webp', '.webp')
 
-TELEGRAM_BOT_TOKEN = '7775474735:AAFHyJw-YL1e91AIVj-KIrWxg8Ps6GprXhs'
+TELEGRAM_BOT_TOKEN = '7775474735:AAHcPmCc7VpC_bxzgDWQvQs_lTpjCAV0C8Q'
 TELEGRAM_CHAT_ID = '-1002411014709'
 
 TEMPLATE_PATH = os.path.join(os.path.dirname(__file__), 'templates', 'sales', 'order_pdf.html')

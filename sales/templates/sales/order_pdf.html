@@ -261,7 +261,7 @@
     padding: 6px 8px;
   }
 
-  .td-name {
+  .products-table td.td-name {
     text-align: left;
     padding-left: 10px;
   }
@@ -271,23 +271,25 @@
     font-weight: bold;
     color: #1a1a1a;
     line-height: 1.35;
+    text-align: left;
   }
 
   .product-num {
     font-size: 6px;
     color: #bbb;
     margin-bottom: 1px;
+    text-align: left;
   }
 
   /* Фото ячейка */
   .td-photo {
-    width: 52px;
+    width: 70px;
     padding: 4px 6px;
   }
 
   .photo-wrap {
-    width: 40px;
-    height: 40px;
+    width: 58px;
+    height: 58px;
     margin: 0 auto;
     border: 1.5px solid #e0e0e0;
     border-radius: 4px;
@@ -299,9 +301,9 @@
   }
 
   .product-image {
-    width: 40px;
-    height: 40px;
-    object-fit: cover;
+    width: 58px;
+    height: 58px;
+    object-fit: contain;
     display: block;
   }
 
@@ -556,7 +558,7 @@
     <thead>
       <tr>
         <th class="th-name">Наименование товара</th>
-        <th style="width:52px;">Фото</th>
+        <th style="width:70px;">Фото</th>
         <th style="width:55px;">Кол-во</th>
         <th style="width:80px;">Цена за ед.</th>
         <th style="width:85px;">Сумма</th>
