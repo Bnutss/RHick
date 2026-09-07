@@ -1,4 +1,5 @@
 from asgiref.sync import sync_to_async
+from django.utils import timezone
 from sales.models import Password
 from .auth import AuthHandler
 
@@ -32,7 +33,7 @@ class PasswordHandler(AuthHandler):
             message += f"🏢 **{i}. {pwd.organization_name}**\n"
             message += f"📹 **NVR:** `{pwd.nvr_password}`\n"
             message += f"📷 **Камера:** `{pwd.camera_password}`\n"
-            message += f"📅 **Обновлено:** {pwd.updated_at.strftime('%d.%m.%Y %H:%M')}\n"
+            message += f"📅 **Обновлено:** {timezone.localtime(pwd.updated_at).strftime('%d.%m.%Y %H:%M')}\n"
             message += "─────────────\n"
 
         if update.message:
@@ -75,6 +76,6 @@ class PasswordHandler(AuthHandler):
                 f"🏢 **Организация:** {password.organization_name}\n"
                 f"📹 **Пароль NVR:** `{password.nvr_password}`\n"
                 f"📷 **Пароль камеры:** `{password.camera_password}`\n"
-                f"📅 **Создан:** {password.created_at.strftime('%d.%m.%Y %H:%M')}",
+                f"📅 **Создан:** {timezone.localtime(password.created_at).strftime('%d.%m.%Y %H:%M')}",
                 parse_mode='Markdown'
             )

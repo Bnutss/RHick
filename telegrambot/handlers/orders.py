@@ -1,5 +1,6 @@
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 from asgiref.sync import sync_to_async
+from django.utils import timezone
 from sales.models import Order, Password, OrderProduct
 from .auth import AuthHandler
 
@@ -73,9 +74,9 @@ class OrderHandler(AuthHandler):
             message += f"📦 Товаров: {products_count}\n"
             message += f"💰 Сумма: ${total:.2f}\n"
             message += f"{status_emoji} Статус: {status_text}\n"
-            message += f"📅 Создан: {order.created_at.strftime('%d.%m.%Y %H:%M')}\n"
+            message += f"📅 Создан: {timezone.localtime(order.created_at).strftime('%d.%m.%Y %H:%M')}\n"
             if order.confirmed_at:
-                message += f"✅ Подтвержден: {order.confirmed_at.strftime('%d.%m.%Y %H:%M')}\n"
+                message += f"✅ Подтвержден: {timezone.localtime(order.confirmed_at).strftime('%d.%m.%Y %H:%M')}\n"
             message += "─────────────\n"
 
             keyboard.append([InlineKeyboardButton(f"🔍 Заказ #{order.id}", callback_data=f"order_{order.id}")])
@@ -97,7 +98,7 @@ class OrderHandler(AuthHandler):
         message += f"👤 **Клиент:** {order.client}\n"
         message += f"🏷️ **НДС:** {order.vat}%\n" if order.vat else "🏷️ **НДС:** Нет\n"
         message += f"💼 **Прочие расходы:** {order.additional_expenses}%\n" if order.additional_expenses else "💼 **Прочие расходы:** Нет\n"
-        message += f"📅 **Создан:** {order.created_at.strftime('%d.%m.%Y %H:%M')}\n"
+        message += f"📅 **Создан:** {timezone.localtime(order.created_at).strftime('%d.%m.%Y %H:%M')}\n"
 
         status_emoji = "✅" if order.is_confirmed else "❌" if order.is_rejected else "⏳"
         status_text = "Подтвержден" if order.is_confirmed else "Отклонен" if order.is_rejected else "В ожидании"
@@ -219,7 +220,7 @@ class OrderHandler(AuthHandler):
                     f"🏷️ **НДС:** {vat_text}\n"
                     f"💼 **Прочие расходы:** {expenses_text}\n"
                     f"💵 **Аванс:** {advance_text}\n"
-                    f"📅 **Создан:** {order.created_at.strftime('%d.%m.%Y %H:%M')}\n\n"
+                    f"📅 **Создан:** {timezone.localtime(order.created_at).strftime('%d.%m.%Y %H:%M')}\n\n"
                     f"💡 Теперь можно добавить товары через /orders",
                     parse_mode='Markdown'
                 )

@@ -2,6 +2,7 @@ from openpyxl.styles import Font, Alignment
 from openpyxl.drawing.image import Image
 from openpyxl import Workbook
 from PIL import Image as PILImage
+from django.utils import timezone
 import os
 import base64
 import requests
@@ -182,8 +183,10 @@ def generate_order_pdf(order):
     else:
         status_class, status_text = 'status-pending', 'В ожидании'
 
-    created_at = order.created_at.strftime('%d.%m.%Y %H:%M') if hasattr(order.created_at, 'strftime') else str(
-        order.created_at)
+    if hasattr(order.created_at, 'strftime'):
+        created_at = timezone.localtime(order.created_at).strftime('%d.%m.%Y %H:%M')
+    else:
+        created_at = str(order.created_at)
 
     with open(TEMPLATE_PATH, 'r', encoding='utf-8') as f:
         template = f.read()
