@@ -37,7 +37,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'userprofile']
+        fields = ['username', 'first_name', 'last_name', 'email', 'userprofile']
 
     def update(self, instance, validated_data):
         userprofile_data = validated_data.pop('userprofile', {})
