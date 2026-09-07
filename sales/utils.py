@@ -2,6 +2,7 @@ from openpyxl.styles import Font, Alignment
 from openpyxl.drawing.image import Image
 from openpyxl import Workbook
 from PIL import Image as PILImage
+from django.conf import settings
 import os
 import base64
 import requests
@@ -10,7 +11,6 @@ from weasyprint import HTML
 
 mimetypes.add_type('image/webp', '.webp')
 
-TELEGRAM_BOT_TOKEN = '7775474735:AAHcPmCc7VpC_bxzgDWQvQs_lTpjCAV0C8Q'
 TELEGRAM_CHAT_ID = '-1002411014709'
 
 TEMPLATE_PATH = os.path.join(os.path.dirname(__file__), 'templates', 'sales', 'order_pdf.html')
@@ -245,7 +245,7 @@ def send_order_to_telegram(order, file_type='excel'):
     else:
         file_path = generate_order_excel(order)
 
-    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendDocument"
+    url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendDocument"
     with open(file_path, 'rb') as file:
         response = requests.post(url, data={'chat_id': TELEGRAM_CHAT_ID}, files={'document': file})
 
