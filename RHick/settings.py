@@ -92,8 +92,6 @@ STATIC_ROOT = 'static/'
 MEDIA_URL = 'media/'
 MEDIA_ROOT = 'media/'
 
-LOGIN_URL = 'users:login'
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOW_ALL_ORIGINS = True
