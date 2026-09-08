@@ -12,7 +12,8 @@ from weasyprint import HTML
 mimetypes.add_type('image/webp', '.webp')
 
 TELEGRAM_BOT_TOKEN = '7775474735:AAHvi62rF8LnlIjLHRIgkUz5qARdzVq7fzQ'
-TELEGRAM_CHAT_ID = '-1003563343018'
+# TELEGRAM_CHAT_ID = '-1003563343018'
+TELEGRAM_CHAT_ID = '-1002411014709'
 
 TEMPLATE_PATH = os.path.join(os.path.dirname(__file__), 'templates', 'sales', 'order_pdf.html')
 LOGO_PATH = os.path.join(os.path.dirname(__file__), 'static', 'images', 'Logo.png')
