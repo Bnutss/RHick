@@ -15,9 +15,9 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ['id', 'client', 'vat', 'additional_expenses', 'advance', 'created_at', 'is_confirmed', 'is_rejected',
-                  'confirmed_at', 'warranty_days_left', 'total_price_without_vat', 'total_price_with_vat', 'vat_amount',
-                  'additional_expenses_amount']
+        fields = ['id', 'client', 'client_phone', 'vat', 'additional_expenses', 'advance', 'created_at',
+                  'is_confirmed', 'is_rejected', 'confirmed_at', 'warranty_days_left', 'total_price_without_vat',
+                  'total_price_with_vat', 'vat_amount', 'additional_expenses_amount']
 
     # Метод для расчета оставшихся дней гарантии
     def get_warranty_days_left(self, obj):
@@ -81,8 +81,9 @@ class OrderDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ['id', 'client', 'vat', 'additional_expenses', 'advance', 'products', 'total_price_without_vat',
-                  'total_price_with_vat', 'additional_expenses_amount', 'total_general_amount']
+        fields = ['id', 'client', 'client_phone', 'vat', 'additional_expenses', 'advance', 'products',
+                  'total_price_without_vat', 'total_price_with_vat', 'additional_expenses_amount',
+                  'total_general_amount']
 
     # Метод для расчета общей суммы без НДС
     def get_total_price_without_vat(self, obj):

@@ -4,6 +4,7 @@ from django.utils import timezone
 
 class Order(models.Model):
     client = models.CharField(max_length=100, verbose_name='Название клиента')
+    client_phone = models.CharField(max_length=20, verbose_name='Номер телефона клиента', blank=True, null=True)
     vat = models.DecimalField(max_digits=5, decimal_places=2, verbose_name='НДС (%)', blank=True, null=True)
     additional_expenses = models.DecimalField(max_digits=5, decimal_places=2, verbose_name='Прочие расходы (%)',
                                               blank=True, null=True)

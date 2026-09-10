@@ -4,10 +4,10 @@ from .models import Order, OrderProduct, Password
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ['client', 'vat', 'additional_expenses', 'is_confirmed', 'confirmed_at', 'is_rejected',
-                    'rejected_at', 'created_at']
+    list_display = ['client', 'client_phone', 'vat', 'additional_expenses', 'is_confirmed', 'confirmed_at',
+                    'is_rejected', 'rejected_at', 'created_at']
     list_filter = ['client', 'is_confirmed', 'is_rejected']
-    search_fields = ['client', ]
+    search_fields = ['client', 'client_phone']
 
 
 @admin.register(OrderProduct)
